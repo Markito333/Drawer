@@ -1,9 +1,9 @@
 {
-  "name": "notes",
-  "version": "0.1.0",
+  "name": "organizer",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --webpack",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
