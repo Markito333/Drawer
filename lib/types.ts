@@ -21,10 +21,13 @@ export interface SubTask {
   completed: boolean
 }
 
+export type TaskStatus = 'new' | 'pending' | 'in-progress' | 'completed'
+
 export interface Task {
   id: string
   title: string
   description: string
+  status: TaskStatus
   completed: boolean
   subtasks: SubTask[]
   images: string[]

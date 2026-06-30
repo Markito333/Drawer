@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useRef, Suspense } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import type { Note, Folder } from '@/lib/types'
-import { getNotes, createNote, deleteNote, reorderNotes, getFolders, createFolder, deleteFolder } from '@/lib/storage'
+import { getNotes, createNote, deleteNote, updateNote, reorderNotes, getFolders, createFolder, deleteFolder } from '@/lib/storage'
 import { getLinkCount } from '@/lib/links'
 import { PlusIcon, XMarkIcon, FolderIcon, BackArrowIcon } from '@/components/Icons'
 import ConfirmModal from '@/components/ConfirmModal'
@@ -26,6 +26,7 @@ function NotesPageContent() {
   const [currentFolder, setCurrentFolder] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [dragId, setDragId] = useState<string | null>(null)
+  const [dragOverFolderId, setDragOverFolderId] = useState<string | null>(null)
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null)
   const [search, setSearch] = useState('')
   const [showFolderModal, setShowFolderModal] = useState(false)
@@ -124,6 +125,7 @@ function NotesPageContent() {
 
   const handleDragEnd = () => {
     setDragId(null)
+    setDragOverFolderId(null)
   }
 
   if (loading) return null
@@ -175,10 +177,36 @@ function NotesPageContent() {
           {folders.map(folder => {
             const count = notes.filter(n => n.folderId === folder.id).length
             return (
-              <button
+              <div
                 key={folder.id}
+                role="button"
+                tabIndex={0}
                 onClick={() => setCurrentFolder(folder.id)}
-                className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors group relative"
+                onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setCurrentFolder(folder.id) }}
+                onDragOver={e => {
+                  if (!dragId) return
+                  e.preventDefault()
+                  setDragOverFolderId(folder.id)
+                }}
+                onDragLeave={e => {
+                  if (e.currentTarget === e.target || !e.currentTarget.contains(e.relatedTarget as Node)) {
+                    setDragOverFolderId(null)
+                  }
+                }}
+                onDrop={e => {
+                  e.preventDefault()
+                  if (dragId) {
+                    updateNote(dragId, { folderId: folder.id })
+                    refresh()
+                  }
+                  setDragOverFolderId(null)
+                  setDragId(null)
+                }}
+                className={`flex flex-col items-center gap-1.5 p-3 rounded-xl transition-colors group relative cursor-pointer ${
+                  dragId && dragOverFolderId === folder.id
+                    ? 'bg-[#7C9DD2]/20 dark:bg-[#7C9DD2]/30 ring-2 ring-[#7C9DD2]'
+                    : 'bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700'
+                }`}
               >
                 <FolderIcon className="w-10 h-10 text-amber-400" />
                 <div className="text-center">
@@ -191,7 +219,7 @@ function NotesPageContent() {
                 >
                   <XMarkIcon className="w-3 h-3" />
                 </button>
-              </button>
+              </div>
             )
           })}
         </div>

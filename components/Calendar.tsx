@@ -91,7 +91,7 @@ export default function Calendar() {
             onClick={() => setSelectedDate(d.key)}
             className={`relative flex flex-col items-center justify-center py-1.5 rounded-lg text-xs transition-colors ${
               d.isToday
-                ? 'bg-zinc-800 text-white dark:bg-zinc-200 dark:text-zinc-900'
+                ? 'bg-amber-300 text-zinc-900 dark:bg-amber-400 dark:text-zinc-900'
                 : selectedDate === d.key
                 ? 'bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100'
                 : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'

@@ -15,6 +15,7 @@ export default function Home() {
   const [contacts, setContacts] = useState<Contact[]>([])
   const [search, setSearch] = useState('')
   const [showExport, setShowExport] = useState(false)
+  const [showFeatures, setShowFeatures] = useState(false)
   const [featureIndex, setFeatureIndex] = useState(0)
 
   const features = [
@@ -70,6 +71,14 @@ export default function Home() {
           </div>
         </div>
         <div className="relative z-10 flex flex-col items-center justify-center flex-1 px-6">
+        </div>
+        <div className="relative z-10 px-4 pb-5">
+          <button
+            onClick={() => setShowFeatures(true)}
+            className="w-full text-sm font-medium py-2 rounded-xl bg-white/90 backdrop-blur-sm text-zinc-800 hover:bg-white shadow-sm transition-all"
+          >
+            Saber más
+          </button>
         </div>
       </div>
       <div className="flex-1 min-w-0 flex flex-col gap-4">
@@ -161,8 +170,16 @@ export default function Home() {
               const size = 100, sw = 12, r = (size - sw) / 2, c = Math.PI * 2 * r, gap = 1.5
               let cum = 0
               return (
-                <div className="flex items-center gap-3">
-                  <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="shrink-0">
+                  <div className="flex items-center gap-3">
+                    <div className="text-center">
+                      <p className="text-xl italic font-medium text-zinc-800 dark:text-zinc-100 leading-tight">
+                        {new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric' })}
+                      </p>
+                      <p className="text-[10px] text-zinc-400 dark:text-zinc-500 mt-0.5">
+                        {new Date().toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
+                      </p>
+                    </div>
+                    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="shrink-0">
                     {chartData.map(d => {
                       const pct = d.value / total
                       const segLen = (pct * 100 - gap) / 100 * c
@@ -276,6 +293,49 @@ export default function Home() {
                   Descargar JSON
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showFeatures && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 dark:bg-black/40 p-4" onClick={() => setShowFeatures(false)}>
+          <div
+            className="bg-zinc-100 dark:bg-zinc-800/95 rounded-2xl shadow-xl w-full max-w-3xl max-h-[85vh] overflow-y-auto p-6"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-base font-semibold text-zinc-800 dark:text-zinc-100">Funcionalidades</h2>
+              <button onClick={() => setShowFeatures(false)} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
+                <XMarkIcon className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              {[
+                { icon: <svg className="w-6 h-6" viewBox="0 0 24 24"><rect x="3" y="2" width="18" height="20" rx="2" fill="#60A5FA"/><rect x="7" y="8" width="10" height="2" rx="1" fill="#fff" opacity="0.9"/><rect x="7" y="12" width="10" height="2" rx="1" fill="#fff" opacity="0.7"/><rect x="7" y="16" width="6" height="2" rx="1" fill="#fff" opacity="0.5"/></svg>, title: 'Notas', desc: 'Texto enriquecido con formato, enlaces e imágenes' },
+                { icon: <svg className="w-6 h-6" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2" fill="#A78BFA"/><circle cx="12" cy="16" r="3" fill="#34D399"/><path d="M10.5 16l1 1 2-2" stroke="#fff" strokeWidth="1.5" fill="none" strokeLinecap="round"/></svg>, title: 'Tareas', desc: 'Subtareas, fechas de vencimiento y seguimiento' },
+                { icon: <svg className="w-6 h-6" viewBox="0 0 24 24"><circle cx="12" cy="5" r="3.5" fill="#34D399"/><circle cx="5" cy="18" r="3" fill="#60A5FA"/><circle cx="19" cy="18" r="3" fill="#FBBF24"/><path d="M12 8.5l-5 7" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round"/><path d="M12 8.5l5 7" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round"/></svg>, title: 'Mapas', desc: 'Mapas mentales interactivos para ideas' },
+                { icon: <svg className="w-6 h-6" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="18" rx="2" fill="#FBBF24"/><rect x="2" y="10" width="20" height="3" fill="#F59E0B"/><rect x="2" y="4" width="20" height="3" rx="2" fill="#F59E0B"/></svg>, title: 'Calendario', desc: 'Vista mensual con tareas por día' },
+                { icon: <svg className="w-6 h-6" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="#F472B6"/><circle cx="12" cy="9" r="3.5" fill="#fff" opacity="0.9"/><ellipse cx="12" cy="17" rx="5.5" ry="3.5" fill="#fff" opacity="0.9"/></svg>, title: 'Contactos', desc: 'Detección automática desde números' },
+                { icon: <svg className="w-6 h-6" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2" fill="#F59E0B"/><rect x="4" y="7" width="16" height="2" fill="#FBBF24"/><rect x="4" y="11" width="16" height="2" fill="#FBBF24"/><rect x="4" y="15" width="10" height="2" fill="#FBBF24"/></svg>, title: 'Carpetas', desc: 'Organiza notas por proyectos' },
+                { icon: <svg className="w-6 h-6" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" fill="#F87171"/><circle cx="12" cy="12" r="4" fill="#fff"/><path d="M11 11l2 2M13 11l-2 2" stroke="#F87171" strokeWidth="1.5" strokeLinecap="round"/></svg>, title: 'Imágenes', desc: 'Inserta imágenes con pies de foto' },
+                { icon: <svg className="w-6 h-6" viewBox="0 0 24 24"><rect x="3" y="6" width="8" height="12" rx="1.5" fill="#A78BFA"/><rect x="13" y="6" width="8" height="12" rx="1.5" fill="#60A5FA"/><path d="M7 4v4M17 4v4" stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round"/></svg>, title: 'Dibujo', desc: 'Pad de dibujo integrado para anotaciones' },
+                { icon: <svg className="w-6 h-6" viewBox="0 0 24 24"><circle cx="10" cy="10" r="5" fill="#60A5FA"/><circle cx="17" cy="17" r="4" fill="#A78BFA"/><rect x="3" y="18" width="7" height="2" rx="1" fill="#FBBF24"/></svg>, title: 'Enlaces', desc: 'Detección y formateo automático de URLs' },
+                { icon: <svg className="w-6 h-6" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" fill="#34D399"/><rect x="14" y="3" width="7" height="7" rx="1" fill="#60A5FA"/><rect x="3" y="14" width="7" height="7" rx="1" fill="#FBBF24"/><rect x="14" y="14" width="7" height="7" rx="1" fill="#F87171"/></svg>, title: 'Búsqueda', desc: 'Búsqueda global en notas y tareas' },
+                { icon: <svg className="w-6 h-6" viewBox="0 0 24 24"><path d="M16 4l2 2-8 8-4-1 1-4 8-8z" fill="#F59E0B"/><path d="M4 20l4-1 1 1-4 4-1-4z" fill="#A78BFA"/></svg>, title: 'Tecnologías', desc: 'Iconos de tech stack para proyectos' },
+                { icon: <svg className="w-6 h-6" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2" fill="#34D399"/><path d="M8 12l3 3 5-5" stroke="#fff" strokeWidth="2" fill="none" strokeLinecap="round"/></svg>, title: 'Exportación', desc: 'Respaldo completo de datos en JSON' },
+              ].map((feat, i) => (
+                <div
+                  key={i}
+                  className="bg-white dark:bg-zinc-900 rounded-xl p-4 flex flex-col items-center gap-2 text-center shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <div className="w-10 h-10 flex items-center justify-center">
+                    {feat.icon}
+                  </div>
+                  <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-100">{feat.title}</p>
+                  <p className="text-[10px] text-zinc-500 dark:text-zinc-400 leading-tight">{feat.desc}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>

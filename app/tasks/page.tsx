@@ -1,13 +1,13 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import type { Task, SubTask } from '@/lib/types'
+import type { Task, SubTask, TaskStatus } from '@/lib/types'
 import { getTasks, createTask, updateTask, deleteTask, getContacts, createContact } from '@/lib/storage'
 import { getLinkCount, linkifyHTML, extractNamePhonePairs } from '@/lib/links'
 import ImageAttacher from '@/components/ImageAttacher'
 import TextEditor from '@/components/TextEditor'
-import { BackArrowIcon, CheckCircleIcon, CircleIcon, XMarkIcon, PlusIcon } from '@/components/Icons'
+import { BackArrowIcon, CheckCircleIcon, CircleIcon, XMarkIcon, PlusIcon, SparkleIcon, ClockIcon, PlayIcon, ChevronIcon } from '@/components/Icons'
 import ConfirmModal from '@/components/ConfirmModal'
 import SearchBar from '@/components/SearchBar'
 
@@ -17,6 +17,20 @@ export default function TasksPage() {
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null)
   const [showCreate, setShowCreate] = useState(false)
   const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState<TaskStatus | 'all'>('all')
+  const [filterOpen, setFilterOpen] = useState(false)
+  const filterRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!filterOpen) return
+    const handler = (e: MouseEvent) => {
+      if (filterRef.current && !filterRef.current.contains(e.target as Node)) {
+        setFilterOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [filterOpen])
 
   const [newTitle, setNewTitle] = useState('')
   const [newDescription, setNewDescription] = useState('')
@@ -71,6 +85,7 @@ export default function TasksPage() {
       title: newTitle.trim(),
       description: newDescription,
       completed: false,
+      status: 'new',
       subtasks: newSubtasks,
       images: newImages,
       imageCaptions: newCaptions,
@@ -99,7 +114,8 @@ export default function TasksPage() {
   const toggleTask = (id: string) => {
     const task = tasks.find(t => t.id === id)
     if (!task) return
-    updateTask(id, { completed: !task.completed })
+    const newCompleted = !task.completed
+    updateTask(id, { completed: newCompleted, status: newCompleted ? 'completed' : 'pending' })
     refresh()
   }
 
@@ -182,12 +198,37 @@ export default function TasksPage() {
     refresh()
   }
 
+  const filterOptions = [
+    { value: 'all' as const, label: 'Todas', icon: null as React.ComponentType<{ className?: string }> | null },
+    { value: 'new' as const, label: 'Nuevas', icon: SparkleIcon },
+    { value: 'pending' as const, label: 'Pendientes', icon: ClockIcon },
+    { value: 'in-progress' as const, label: 'En curso', icon: PlayIcon },
+    { value: 'completed' as const, label: 'Completadas', icon: CheckCircleIcon },
+  ]
+  const currentFilter = filterOptions.find(f => f.value === statusFilter)!
+
+  const statusLabels: Record<string, string> = {
+    'new': 'Nueva',
+    'pending': 'Pendiente',
+    'in-progress': 'En curso',
+    'completed': 'Completada',
+  }
+
+  const statusColors: Record<string, string> = {
+    'new': 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300',
+    'pending': 'bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-300',
+    'in-progress': 'bg-sky-100 text-sky-600 dark:bg-sky-900/40 dark:text-sky-300',
+    'completed': 'bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-300',
+  }
+
   const modalTask = modalTaskId ? tasks.find(t => t.id === modalTaskId) : null
 
   const q = search.toLowerCase().trim()
-  const displayedTasks = q
-    ? tasks.filter(t => t.title.toLowerCase().includes(q) || t.description.toLowerCase().includes(q))
-    : tasks
+  const displayedTasks = tasks.filter(t => {
+    if (q && !t.title.toLowerCase().includes(q) && !t.description.toLowerCase().includes(q)) return false
+    if (statusFilter !== 'all' && t.status !== statusFilter) return false
+    return true
+  })
   const sorted = [...displayedTasks].sort((a, b) => {
     if (a.completed !== b.completed) return a.completed ? 1 : -1
     return b.updatedAt - a.updatedAt
@@ -222,7 +263,37 @@ export default function TasksPage() {
         </button>
       </div>
 
-      <SearchBar value={search} onChange={setSearch} placeholder="Buscar en todas las tareas..." />
+      <div className="flex items-center gap-2">
+        <SearchBar value={search} onChange={setSearch} placeholder="Buscar tareas..." className="flex-1" />
+        <div ref={filterRef} className="relative shrink-0">
+          <button
+            onClick={() => setFilterOpen(!filterOpen)}
+            className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+          >
+            {currentFilter.icon && <currentFilter.icon className="w-3.5 h-3.5" />}
+            <span>{currentFilter.label}</span>
+            <ChevronIcon className="w-3 h-3" />
+          </button>
+          {filterOpen && (
+            <div className="absolute top-full left-0 mt-1 z-50 bg-white dark:bg-zinc-900 rounded-lg shadow-lg border border-zinc-200 dark:border-zinc-800 py-1 min-w-[140px]">
+              {filterOptions.map(option => (
+                <button
+                  key={option.value}
+                  onClick={() => { setStatusFilter(option.value); setFilterOpen(false) }}
+                  className={`flex items-center gap-2 w-full text-left px-3 py-1.5 text-xs transition-colors ${
+                    statusFilter === option.value
+                      ? 'text-zinc-800 dark:text-zinc-100 bg-zinc-100 dark:bg-zinc-800'
+                      : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/50'
+                  }`}
+                >
+                  {option.icon && <option.icon className="w-3.5 h-3.5" />}
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
 
       {sorted.length === 0 ? (
         search ? (
@@ -244,9 +315,14 @@ export default function TasksPage() {
               )}
             </button>
             <div className="flex-1 min-w-0">
-              <p className={`text-sm ${task.completed ? 'line-through text-zinc-400' : 'text-zinc-800 dark:text-zinc-100'}`}>
-                {task.title}
-              </p>
+              <div className="flex items-center gap-2">
+                <p className={`text-sm ${task.completed ? 'line-through text-zinc-400' : 'text-zinc-800 dark:text-zinc-100'}`}>
+                  {task.title}
+                </p>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${statusColors[task.status]}`}>
+                  {statusLabels[task.status]}
+                </span>
+              </div>
             </div>
             <button
               onClick={() => setModalTaskId(task.id)}

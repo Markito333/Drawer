@@ -11,7 +11,7 @@ function getData(): AppData {
   const data = JSON.parse(raw)
   return {
     notes: (data.notes ?? []).map((n: Note) => ({ ...n, imageCaptions: n.imageCaptions ?? {} })),
-    tasks: (data.tasks ?? []).map((t: Task) => ({ ...t, imageCaptions: t.imageCaptions ?? {} })),
+    tasks: (data.tasks ?? []).map((t: Task) => ({ ...t, imageCaptions: t.imageCaptions ?? {}, status: (t as any).status || (t.completed ? 'completed' as const : 'pending' as const) })),
     mindMaps: data.mindMaps ?? [],
     folders: data.folders ?? [],
     contacts: data.contacts ?? [],

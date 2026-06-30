@@ -35,8 +35,15 @@ export default function RootLayout({
     >
       <head>
         <link rel="manifest" href="/manifest.json" />
+        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/icon.svg" />
+        <meta name="theme-color" content="#18181b" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Drawer" />
+        <script dangerouslySetInnerHTML={{
+          __html: `'serviceWorker'in navigator&&navigator.serviceWorker.register('/sw.js')`
+        }} />
       </head>
       <body className="min-h-screen">
         <main>{children}</main>

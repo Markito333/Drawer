@@ -124,6 +124,10 @@ export default function NotePage() {
     setImageCaptions(prev => ({ ...prev, [url]: caption }))
   }
 
+  const handleEditImage = (oldUrl: string, newDataUrl: string) => {
+    setImages(prev => prev.map(u => u === oldUrl ? newDataUrl : u))
+  }
+
   const handleSaveDrawing = (dataUrl: string) => {
     setImages(prev => [...prev, dataUrl])
   }
@@ -208,7 +212,7 @@ export default function NotePage() {
         minHeight="200px"
       />
 
-      <ImageAttacher images={images} captions={imageCaptions} onAdd={handleAddImage} onRemove={handleRemoveImage} onEditCaption={handleEditCaption} openAdd={showImageInput} onOpenAddChange={setShowImageInput} />
+      <ImageAttacher images={images} captions={imageCaptions} onAdd={handleAddImage} onRemove={handleRemoveImage} onEditCaption={handleEditCaption} onEditImage={handleEditImage} openAdd={showImageInput} onOpenAddChange={setShowImageInput} />
 
       <DrawingPad open={showDrawingPad} onSave={handleSaveDrawing} onClose={() => setShowDrawingPad(false)} />
 
