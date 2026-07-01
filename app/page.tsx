@@ -63,7 +63,7 @@ export default function Home() {
           <img src="/side2.jpg" alt="" className="w-full h-full object-cover" />
         </div>
         <div className="relative z-10 flex items-center gap-2 p-4">
-          <button onClick={() => setShowExport(true)} className="flex items-center justify-center w-9 h-9 rounded-xl bg-white/30 backdrop-blur-sm text-white hover:bg-white/40 transition-colors shrink-0 shadow-sm" title="Guardar datos">
+          <button onClick={() => setShowExport(true)} className="flex items-center justify-center w-9 h-9 rounded-xl bg-blue-500/70 backdrop-blur-sm text-white hover:bg-blue-600/80 transition-colors shrink-0 shadow-sm" title="Guardar datos">
             <SaveIcon className="w-4 h-4" />
           </button>
           <div className="flex-1 min-w-0">
@@ -170,15 +170,20 @@ export default function Home() {
               const size = 100, sw = 12, r = (size - sw) / 2, c = Math.PI * 2 * r, gap = 1.5
               let cum = 0
               return (
-                  <div className="flex items-center gap-3">
-                    <div className="text-center">
-                      <p className="text-xl italic font-medium text-zinc-800 dark:text-zinc-100 leading-tight">
-                        {new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric' })}
-                      </p>
-                      <p className="text-[10px] text-zinc-400 dark:text-zinc-500 mt-0.5">
-                        {new Date().toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
-                      </p>
-                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-zinc-800 dark:text-zinc-100 leading-tight tracking-tight">
+                          {new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      </div>
+                      <div className="text-left bg-zinc-200/60 dark:bg-zinc-700/40 rounded-xl px-4 py-2">
+                        <p className="text-xl font-bold text-zinc-800 dark:text-zinc-100 leading-tight">
+                          {new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric' })}
+                        </p>
+                        <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5 font-bold">
+                          {new Date().toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
+                        </p>
+                      </div>
                     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="shrink-0">
                     {chartData.map(d => {
                       const pct = d.value / total
@@ -216,7 +221,7 @@ export default function Home() {
           </div>
           <div className="grid gap-3">
             {notes.map(note => (
-              <Link key={note.id} href={`/notes/${note.id}`} className="block p-4 rounded-xl bg-zinc-100/70 dark:bg-zinc-800/60 hover:bg-zinc-200/70 dark:hover:bg-zinc-700/60 transition-colors">
+              <Link key={note.id} href={`/notes/${note.id}`} className={`block p-4 rounded-xl transition-colors ${note.color ? 'hover:brightness-95' : 'bg-zinc-100/70 dark:bg-zinc-800/60 hover:bg-zinc-200/70 dark:hover:bg-zinc-700/60'}`} style={note.color ? { backgroundColor: note.color } : undefined}>
                 <p className="text-sm font-medium text-zinc-800 dark:text-zinc-100 line-clamp-2 leading-snug">{note.title || 'Sin título'}</p>
                 <p className="text-xs text-zinc-400 mt-2 line-clamp-2">{note.content ? note.content.replace(/<[^>]+>/g, '').substring(0, 120) : 'Sin contenido'}</p>
               </Link>
@@ -288,7 +293,7 @@ export default function Home() {
                     URL.revokeObjectURL(url)
                     setShowExport(false)
                   }}
-                  className="flex-1 text-sm px-4 py-2 rounded-lg bg-zinc-800 text-white hover:bg-zinc-700 dark:bg-zinc-200 dark:text-zinc-800 dark:hover:bg-zinc-300 transition-colors font-medium"
+                  className="flex-1 text-sm px-4 py-2 rounded-lg bg-blue-200 text-zinc-700 hover:bg-blue-300 dark:bg-blue-300 dark:text-zinc-800 dark:hover:bg-blue-400 transition-colors font-medium"
                 >
                   Descargar JSON
                 </button>
@@ -311,31 +316,66 @@ export default function Home() {
               </button>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-              {[
-                { icon: <svg className="w-6 h-6" viewBox="0 0 24 24"><rect x="3" y="2" width="18" height="20" rx="2" fill="#60A5FA"/><rect x="7" y="8" width="10" height="2" rx="1" fill="#fff" opacity="0.9"/><rect x="7" y="12" width="10" height="2" rx="1" fill="#fff" opacity="0.7"/><rect x="7" y="16" width="6" height="2" rx="1" fill="#fff" opacity="0.5"/></svg>, title: 'Notas', desc: 'Texto enriquecido con formato, enlaces e imágenes' },
-                { icon: <svg className="w-6 h-6" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2" fill="#A78BFA"/><circle cx="12" cy="16" r="3" fill="#34D399"/><path d="M10.5 16l1 1 2-2" stroke="#fff" strokeWidth="1.5" fill="none" strokeLinecap="round"/></svg>, title: 'Tareas', desc: 'Subtareas, fechas de vencimiento y seguimiento' },
-                { icon: <svg className="w-6 h-6" viewBox="0 0 24 24"><circle cx="12" cy="5" r="3.5" fill="#34D399"/><circle cx="5" cy="18" r="3" fill="#60A5FA"/><circle cx="19" cy="18" r="3" fill="#FBBF24"/><path d="M12 8.5l-5 7" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round"/><path d="M12 8.5l5 7" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round"/></svg>, title: 'Mapas', desc: 'Mapas mentales interactivos para ideas' },
-                { icon: <svg className="w-6 h-6" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="18" rx="2" fill="#FBBF24"/><rect x="2" y="10" width="20" height="3" fill="#F59E0B"/><rect x="2" y="4" width="20" height="3" rx="2" fill="#F59E0B"/></svg>, title: 'Calendario', desc: 'Vista mensual con tareas por día' },
-                { icon: <svg className="w-6 h-6" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="#F472B6"/><circle cx="12" cy="9" r="3.5" fill="#fff" opacity="0.9"/><ellipse cx="12" cy="17" rx="5.5" ry="3.5" fill="#fff" opacity="0.9"/></svg>, title: 'Contactos', desc: 'Detección automática desde números' },
-                { icon: <svg className="w-6 h-6" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2" fill="#F59E0B"/><rect x="4" y="7" width="16" height="2" fill="#FBBF24"/><rect x="4" y="11" width="16" height="2" fill="#FBBF24"/><rect x="4" y="15" width="10" height="2" fill="#FBBF24"/></svg>, title: 'Carpetas', desc: 'Organiza notas por proyectos' },
-                { icon: <svg className="w-6 h-6" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" fill="#F87171"/><circle cx="12" cy="12" r="4" fill="#fff"/><path d="M11 11l2 2M13 11l-2 2" stroke="#F87171" strokeWidth="1.5" strokeLinecap="round"/></svg>, title: 'Imágenes', desc: 'Inserta imágenes con pies de foto' },
-                { icon: <svg className="w-6 h-6" viewBox="0 0 24 24"><rect x="3" y="6" width="8" height="12" rx="1.5" fill="#A78BFA"/><rect x="13" y="6" width="8" height="12" rx="1.5" fill="#60A5FA"/><path d="M7 4v4M17 4v4" stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round"/></svg>, title: 'Dibujo', desc: 'Pad de dibujo integrado para anotaciones' },
-                { icon: <svg className="w-6 h-6" viewBox="0 0 24 24"><circle cx="10" cy="10" r="5" fill="#60A5FA"/><circle cx="17" cy="17" r="4" fill="#A78BFA"/><rect x="3" y="18" width="7" height="2" rx="1" fill="#FBBF24"/></svg>, title: 'Enlaces', desc: 'Detección y formateo automático de URLs' },
-                { icon: <svg className="w-6 h-6" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" fill="#34D399"/><rect x="14" y="3" width="7" height="7" rx="1" fill="#60A5FA"/><rect x="3" y="14" width="7" height="7" rx="1" fill="#FBBF24"/><rect x="14" y="14" width="7" height="7" rx="1" fill="#F87171"/></svg>, title: 'Búsqueda', desc: 'Búsqueda global en notas y tareas' },
-                { icon: <svg className="w-6 h-6" viewBox="0 0 24 24"><path d="M16 4l2 2-8 8-4-1 1-4 8-8z" fill="#F59E0B"/><path d="M4 20l4-1 1 1-4 4-1-4z" fill="#A78BFA"/></svg>, title: 'Tecnologías', desc: 'Iconos de tech stack para proyectos' },
-                { icon: <svg className="w-6 h-6" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2" fill="#34D399"/><path d="M8 12l3 3 5-5" stroke="#fff" strokeWidth="2" fill="none" strokeLinecap="round"/></svg>, title: 'Exportación', desc: 'Respaldo completo de datos en JSON' },
-              ].map((feat, i) => (
-                <div
-                  key={i}
-                  className="bg-white dark:bg-zinc-900 rounded-xl p-4 flex flex-col items-center gap-2 text-center shadow-sm hover:shadow-md transition-shadow"
-                >
-                  <div className="w-10 h-10 flex items-center justify-center">
-                    {feat.icon}
-                  </div>
-                  <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-100">{feat.title}</p>
-                  <p className="text-[10px] text-zinc-500 dark:text-zinc-400 leading-tight">{feat.desc}</p>
-                </div>
-              ))}
+              <div className="md:col-span-2 bg-white dark:bg-zinc-900 rounded-xl p-4 flex flex-col items-center gap-2 text-center shadow-sm hover:shadow-md transition-shadow">
+                <div className="w-10 h-10 flex items-center justify-center"><svg className="w-6 h-6" viewBox="0 0 24 24"><rect x="3" y="2" width="18" height="20" rx="2" fill="#60A5FA"/><rect x="7" y="8" width="10" height="2" rx="1" fill="#fff" opacity="0.9"/><rect x="7" y="12" width="10" height="2" rx="1" fill="#fff" opacity="0.7"/><rect x="7" y="16" width="6" height="2" rx="1" fill="#fff" opacity="0.5"/></svg></div>
+                <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-100">Notas</p>
+                <p className="text-[10px] text-zinc-500 dark:text-zinc-400 leading-tight">Texto enriquecido con formato, enlaces e imágenes</p>
+              </div>
+              <div className="bg-white dark:bg-zinc-900 rounded-xl p-4 flex flex-col items-center gap-2 text-center shadow-sm hover:shadow-md transition-shadow">
+                <div className="w-10 h-10 flex items-center justify-center"><svg className="w-6 h-6" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2" fill="#A78BFA"/><circle cx="12" cy="16" r="3" fill="#34D399"/><path d="M10.5 16l1 1 2-2" stroke="#fff" strokeWidth="1.5" fill="none" strokeLinecap="round"/></svg></div>
+                <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-100">Tareas</p>
+                <p className="text-[10px] text-zinc-500 dark:text-zinc-400 leading-tight">Subtareas, fechas de vencimiento y seguimiento</p>
+              </div>
+              <div className="bg-white dark:bg-zinc-900 rounded-xl p-4 flex flex-col items-center gap-2 text-center shadow-sm hover:shadow-md transition-shadow">
+                <div className="w-10 h-10 flex items-center justify-center"><svg className="w-6 h-6" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="18" rx="2" fill="#FBBF24"/><rect x="2" y="10" width="20" height="3" fill="#F59E0B"/><rect x="2" y="4" width="20" height="3" rx="2" fill="#F59E0B"/></svg></div>
+                <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-100">Calendario</p>
+                <p className="text-[10px] text-zinc-500 dark:text-zinc-400 leading-tight">Vista mensual con tareas por día</p>
+              </div>
+              <div className="md:col-span-2 bg-white dark:bg-zinc-900 rounded-xl p-4 flex flex-col items-center gap-2 text-center shadow-sm hover:shadow-md transition-shadow">
+                <div className="w-10 h-10 flex items-center justify-center"><svg className="w-6 h-6" viewBox="0 0 24 24"><circle cx="12" cy="5" r="3.5" fill="#34D399"/><circle cx="5" cy="18" r="3" fill="#60A5FA"/><circle cx="19" cy="18" r="3" fill="#FBBF24"/><path d="M12 8.5l-5 7" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round"/><path d="M12 8.5l5 7" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round"/></svg></div>
+                <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-100">Mapas</p>
+                <p className="text-[10px] text-zinc-500 dark:text-zinc-400 leading-tight">Mapas mentales interactivos para ideas</p>
+              </div>
+              <div className="bg-white dark:bg-zinc-900 rounded-xl p-4 flex flex-col items-center gap-2 text-center shadow-sm hover:shadow-md transition-shadow">
+                <div className="w-10 h-10 flex items-center justify-center"><svg className="w-6 h-6" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="#F472B6"/><circle cx="12" cy="9" r="3.5" fill="#fff" opacity="0.9"/><ellipse cx="12" cy="17" rx="5.5" ry="3.5" fill="#fff" opacity="0.9"/></svg></div>
+                <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-100">Contactos</p>
+                <p className="text-[10px] text-zinc-500 dark:text-zinc-400 leading-tight">Detección automática desde números</p>
+              </div>
+              <div className="bg-white dark:bg-zinc-900 rounded-xl p-4 flex flex-col items-center gap-2 text-center shadow-sm hover:shadow-md transition-shadow">
+                <div className="w-10 h-10 flex items-center justify-center"><svg className="w-6 h-6" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2" fill="#F59E0B"/><rect x="4" y="7" width="16" height="2" fill="#FBBF24"/><rect x="4" y="11" width="16" height="2" fill="#FBBF24"/><rect x="4" y="15" width="10" height="2" fill="#FBBF24"/></svg></div>
+                <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-100">Carpetas</p>
+                <p className="text-[10px] text-zinc-500 dark:text-zinc-400 leading-tight">Organiza notas por proyectos</p>
+              </div>
+              <div className="md:col-span-2 bg-white dark:bg-zinc-900 rounded-xl p-4 flex flex-col items-center gap-2 text-center shadow-sm hover:shadow-md transition-shadow">
+                <div className="w-10 h-10 flex items-center justify-center"><svg className="w-6 h-6" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" fill="#F87171"/><circle cx="12" cy="12" r="4" fill="#fff"/><path d="M11 11l2 2M13 11l-2 2" stroke="#F87171" strokeWidth="1.5" strokeLinecap="round"/></svg></div>
+                <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-100">Imágenes</p>
+                <p className="text-[10px] text-zinc-500 dark:text-zinc-400 leading-tight">Inserta imágenes con pies de foto</p>
+              </div>
+              <div className="bg-white dark:bg-zinc-900 rounded-xl p-4 flex flex-col items-center gap-2 text-center shadow-sm hover:shadow-md transition-shadow">
+                <div className="w-10 h-10 flex items-center justify-center"><svg className="w-6 h-6" viewBox="0 0 24 24"><rect x="3" y="6" width="8" height="12" rx="1.5" fill="#A78BFA"/><rect x="13" y="6" width="8" height="12" rx="1.5" fill="#60A5FA"/><path d="M7 4v4M17 4v4" stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round"/></svg></div>
+                <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-100">Dibujo</p>
+                <p className="text-[10px] text-zinc-500 dark:text-zinc-400 leading-tight">Pad de dibujo integrado para anotaciones</p>
+              </div>
+              <div className="bg-white dark:bg-zinc-900 rounded-xl p-4 flex flex-col items-center gap-2 text-center shadow-sm hover:shadow-md transition-shadow">
+                <div className="w-10 h-10 flex items-center justify-center"><svg className="w-6 h-6" viewBox="0 0 24 24"><circle cx="10" cy="10" r="5" fill="#60A5FA"/><circle cx="17" cy="17" r="4" fill="#A78BFA"/><rect x="3" y="18" width="7" height="2" rx="1" fill="#FBBF24"/></svg></div>
+                <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-100">Enlaces</p>
+                <p className="text-[10px] text-zinc-500 dark:text-zinc-400 leading-tight">Detección y formateo automático de URLs</p>
+              </div>
+              <div className="md:col-span-2 bg-white dark:bg-zinc-900 rounded-xl p-4 flex flex-col items-center gap-2 text-center shadow-sm hover:shadow-md transition-shadow">
+                <div className="w-10 h-10 flex items-center justify-center"><svg className="w-6 h-6" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" fill="#34D399"/><rect x="14" y="3" width="7" height="7" rx="1" fill="#60A5FA"/><rect x="3" y="14" width="7" height="7" rx="1" fill="#FBBF24"/><rect x="14" y="14" width="7" height="7" rx="1" fill="#F87171"/></svg></div>
+                <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-100">Búsqueda</p>
+                <p className="text-[10px] text-zinc-500 dark:text-zinc-400 leading-tight">Búsqueda global en notas y tareas</p>
+              </div>
+              <div className="bg-white dark:bg-zinc-900 rounded-xl p-4 flex flex-col items-center gap-2 text-center shadow-sm hover:shadow-md transition-shadow">
+                <div className="w-10 h-10 flex items-center justify-center"><svg className="w-6 h-6" viewBox="0 0 24 24"><path d="M16 4l2 2-8 8-4-1 1-4 8-8z" fill="#F59E0B"/><path d="M4 20l4-1 1 1-4 4-1-4z" fill="#A78BFA"/></svg></div>
+                <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-100">Tecnologías</p>
+                <p className="text-[10px] text-zinc-500 dark:text-zinc-400 leading-tight">Iconos de tech stack para proyectos</p>
+              </div>
+              <div className="md:col-span-2 bg-white dark:bg-zinc-900 rounded-xl p-4 flex flex-col items-center gap-2 text-center shadow-sm hover:shadow-md transition-shadow">
+                <div className="w-10 h-10 flex items-center justify-center"><svg className="w-6 h-6" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2" fill="#34D399"/><path d="M8 12l3 3 5-5" stroke="#fff" strokeWidth="2" fill="none" strokeLinecap="round"/></svg></div>
+                <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-100">Exportación</p>
+                <p className="text-[10px] text-zinc-500 dark:text-zinc-400 leading-tight">Respaldo completo de datos en JSON</p>
+              </div>
             </div>
           </div>
         </div>

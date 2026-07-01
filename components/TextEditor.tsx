@@ -16,6 +16,18 @@ export default function TextEditor({ value, onChange, placeholder, minHeight = '
   const [toolbarPos, setToolbarPos] = useState({ top: 0, left: 0 })
   const toolbarRef = useRef<HTMLDivElement>(null)
   const isInternal = useRef(false)
+  const [showTextColor, setShowTextColor] = useState(false)
+
+  const TEXT_COLORS = [
+    { label: 'Rojo', value: '#ef4444' },
+    { label: 'Naranja', value: '#f97316' },
+    { label: 'Verde', value: '#22c55e' },
+    { label: 'Azul', value: '#3b82f6' },
+    { label: 'Morado', value: '#a855f7' },
+    { label: 'Rosa', value: '#ec4899' },
+    { label: 'Gris', value: '#6b7280' },
+    { label: 'Negro', value: '#18181b' },
+  ]
 
   useEffect(() => {
     const el = ref.current
@@ -130,6 +142,18 @@ export default function TextEditor({ value, onChange, placeholder, minHeight = '
     if (ref.current) onChange(ref.current.innerHTML)
   }
 
+  const handleClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement
+    if (target.tagName === 'A') {
+      const anchor = target as HTMLAnchorElement
+      if (anchor.href) {
+        e.preventDefault()
+        e.stopPropagation()
+        window.open(anchor.href, '_blank', 'noopener,noreferrer')
+      }
+    }
+  }
+
   return (
     <div className="relative">
       <div
@@ -139,8 +163,9 @@ export default function TextEditor({ value, onChange, placeholder, minHeight = '
         onInput={handleInput}
         onMouseUp={handleMouseUp}
         onKeyUp={handleMouseUp}
+        onClick={handleClick}
         style={{ minHeight }}
-        className="w-full text-sm bg-zinc-100 dark:bg-zinc-800 border-none rounded-lg px-3 py-2 text-zinc-700 dark:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-zinc-400 leading-relaxed [&:empty:before]:content-[attr(data-placeholder)] [&:empty:before]:text-zinc-400"
+        className="w-full text-sm bg-zinc-100 dark:bg-zinc-800 border-none rounded-lg px-3 py-2 text-zinc-700 dark:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-zinc-400 leading-relaxed [&:empty:before]:content-[attr(data-placeholder)] [&:empty:before]:text-zinc-400 [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:text-zinc-900 dark:[&_h1]:text-zinc-100 [&_h1]:my-2"
         data-placeholder={placeholder}
       />
       {showToolbar && (
@@ -183,6 +208,36 @@ export default function TextEditor({ value, onChange, placeholder, minHeight = '
           </button>
           <div className="w-px h-5 bg-zinc-200 dark:bg-zinc-700" />
           <button
+            onClick={() => exec('formatBlock', 'h1')}
+            className="w-7 h-7 flex items-center justify-center text-[11px] font-bold text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded"
+            title="Título grande (H1)"
+          >
+            H1
+          </button>
+          <div className="relative">
+            <button
+              onClick={() => setShowTextColor(!showTextColor)}
+              className="w-7 h-7 flex items-center justify-center text-sm text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded"
+              title="Color de texto"
+            >
+              <span className="text-xs font-bold" style={{ textDecoration: 'underline', textDecorationColor: '#3b82f6', textUnderlineOffset: '2px' }}>A</span>
+            </button>
+            {showTextColor && (
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 flex items-center gap-0.5 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-lg px-1.5 py-1">
+                {TEXT_COLORS.map(c => (
+                  <button
+                    key={c.value}
+                    onClick={() => { exec('foreColor', c.value); setShowTextColor(false) }}
+                    className="w-5 h-5 rounded-full hover:scale-110 transition-transform"
+                    style={{ backgroundColor: c.value }}
+                    title={c.label}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="w-px h-5 bg-zinc-200 dark:bg-zinc-700" />
+          <button
             onClick={() => {
               const sel = window.getSelection()
               if (sel) navigator.clipboard.writeText(sel.toString())
@@ -196,6 +251,9 @@ export default function TextEditor({ value, onChange, placeholder, minHeight = '
             </svg>
           </button>
         </div>
+      )}
+      {showTextColor && (
+        <div className="fixed inset-0 z-40" onClick={() => setShowTextColor(false)} />
       )}
     </div>
   )

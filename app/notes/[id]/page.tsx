@@ -32,7 +32,19 @@ export default function NotePage() {
   const [selectedTechs, setSelectedTechs] = useState<Set<string>>(new Set())
   const [showDrawingPad, setShowDrawingPad] = useState(false)
   const [techSearch, setTechSearch] = useState('')
+  const [noteColor, setNoteColor] = useState('')
+  const [showColorPicker, setShowColorPicker] = useState(false)
   const linkCount = getLinkCount(content)
+
+  const NOTE_COLORS = [
+    { name: 'Ninguno', value: '' },
+    { name: 'Amarillo', value: '#fef9c3' },
+    { name: 'Rosado', value: '#fce7f3' },
+    { name: 'Verde', value: '#dcfce7' },
+    { name: 'Azul', value: '#dbeafe' },
+    { name: 'Morado', value: '#f3e8ff' },
+    { name: 'Naranja', value: '#ffedd5' },
+  ]
 
   const isProjectFolder = (() => {
     if (!note?.folderId) return false
@@ -51,6 +63,7 @@ export default function NotePage() {
     setContent(n.content)
     setImages(n.images)
     setImageCaptions(n.imageCaptions ?? {})
+    setNoteColor(n.color ?? '')
   }, [id, router])
 
   const backPath = note?.folderId ? `/notes?folder=${note.folderId}` : '/notes'
@@ -58,10 +71,10 @@ export default function NotePage() {
   useEffect(() => {
     if (!note) return
     const timer = setTimeout(() => {
-      updateNote(id, { title, content, images, imageCaptions })
+      updateNote(id, { title, content, images, imageCaptions, color: noteColor || undefined })
     }, 300)
     return () => clearTimeout(timer)
-  }, [title, content, images, imageCaptions, id, note])
+  }, [title, content, images, imageCaptions, noteColor, id, note])
 
   useEffect(() => {
     if (!content) return
@@ -203,6 +216,45 @@ export default function NotePage() {
             <TechIcon className="w-3.5 h-3.5" />
           </button>
         )}
+        <div className="w-px h-6 bg-zinc-200 dark:bg-zinc-700" />
+        <div className="relative flex items-center">
+          <button
+            onClick={() => setShowColorPicker(!showColorPicker)}
+            className={`flex items-center justify-center w-8 h-8 rounded-lg transition-colors ${
+              noteColor
+                ? 'bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300'
+                : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700'
+            }`}
+            title="Color de fondo"
+          >
+            {noteColor ? (
+              <span className="w-4 h-4 rounded-sm border border-zinc-400" style={{ backgroundColor: noteColor }} />
+            ) : (
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.098 19.902a3.75 3.75 0 0 0 5.304 0l6.401-6.402M6.75 21A3.75 3.75 0 0 1 3 17.25V4.125C3 3.504 3.504 3 4.125 3h5.25c.621 0 1.125.504 1.125 1.125v4.072M6.75 21a3.75 3.75 0 0 0 3.75-3.75V8.197M6.75 21h13.125c.621 0 1.125-.504 1.125-1.125v-5.25c0-.621-.504-1.125-1.125-1.125h-4.072" />
+              </svg>
+            )}
+          </button>
+          {showColorPicker && (
+            <div className="absolute top-full left-0 mt-1.5 flex items-center gap-1 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-lg px-2 py-1.5 z-50">
+              {NOTE_COLORS.map(c => (
+                <button
+                  key={c.value || 'none'}
+                  onClick={() => { setNoteColor(c.value); setShowColorPicker(false) }}
+                  className={`w-6 h-6 rounded-full border-2 transition-all ${
+                    noteColor === c.value
+                      ? 'border-zinc-600 dark:border-zinc-200 scale-110'
+                      : 'border-zinc-300 dark:border-zinc-600 hover:scale-110'
+                  }`}
+                  style={{ backgroundColor: c.value || 'transparent' }}
+                  title={c.name}
+                >
+                  {!c.value && <span className="block w-full h-full rounded-full border border-dashed border-zinc-400" />}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       <TextEditor
@@ -356,6 +408,8 @@ export default function NotePage() {
           </div>
         </div>
       )}
+
+      {showColorPicker && <div className="fixed inset-0 z-40" onClick={() => setShowColorPicker(false)} />}
 
       <ConfirmModal
         open={showConfirm}

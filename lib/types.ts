@@ -11,6 +11,7 @@ export interface Note {
   images: string[]
   imageCaptions: Record<string, string>
   folderId: string | null
+  color?: string
   createdAt: number
   updatedAt: number
 }

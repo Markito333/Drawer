@@ -248,9 +248,10 @@ function NotesPageContent() {
               onDragEnd={handleDragEnd}
               className={`group flex flex-col p-4 rounded-xl border transition-colors ${
                 dragId === note.id
-                  ? 'border-zinc-300 dark:border-zinc-600 bg-zinc-50 dark:bg-zinc-800/50 opacity-50'
-                  : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700'
+                  ? 'border-zinc-300 dark:border-zinc-600 opacity-50'
+                  : 'border-zinc-200/60 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700'
               }`}
+              style={note.color ? { backgroundColor: note.color } : undefined}
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
