@@ -12,6 +12,9 @@ export interface Note {
   imageCaptions: Record<string, string>
   folderId: string | null
   color?: string
+  channelId?: string
+  channelName?: string
+  channels?: { id: string; name?: string }[]
   createdAt: number
   updatedAt: number
 }

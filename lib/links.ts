@@ -209,6 +209,24 @@ export function linkifyHTML(html: string): string {
   return linkified.replace(/\x00LINK(\d+)\x00/g, (_, idx) => anchors[parseInt(idx)])
 }
 
+const YT_REGEX = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/i
+
+export function extractYouTubeUrls(html: string): string[] {
+  const text = html.replace(/<[^>]+>/g, '')
+  const matches: string[] = []
+  let m: RegExpExecArray | null
+  const re = new RegExp(YT_REGEX.source, 'gi')
+  while ((m = re.exec(text)) !== null) {
+    matches.push(m[0].startsWith('http') ? m[0] : `https://${m[0]}`)
+  }
+  return [...new Set(matches)]
+}
+
+export function getYouTubeVideoId(url: string): string | null {
+  const match = url.match(YT_REGEX)
+  return match ? match[1] : null
+}
+
 export function extractNamePhonePairs(text: string): { name: string; phone: string }[] {
   const results: { name: string; phone: string }[] = []
   const seen = new Set<string>()
