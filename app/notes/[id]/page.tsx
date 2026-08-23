@@ -4,11 +4,13 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import type { Note } from '@/lib/types'
 import { getNote, updateNote, deleteNote, getContacts, createContact, getFolders } from '@/lib/storage'
-import { getLinkCount, extractNamePhonePairs } from '@/lib/links'
+import { getLinkCount, extractNamePhonePairs, extractYouTubeUrls } from '@/lib/links'
 import { technologies } from '@/lib/technologies'
 import ImageAttacher from '@/components/ImageAttacher'
 import TextEditor from '@/components/TextEditor'
 import DrawingPad from '@/components/DrawingPad'
+import YouTubeSidebar from '@/components/YouTubeSidebar'
+import ChannelSection from '@/components/ChannelSection'
 import { BackArrowIcon, ContactIcon, XMarkIcon, PhotoIcon, TechIcon, SearchIcon, TaskIcon, PencilIcon } from '@/components/Icons'
 import type { Contact } from '@/lib/types'
 import ConfirmModal from '@/components/ConfirmModal'
@@ -34,6 +36,9 @@ export default function NotePage() {
   const [techSearch, setTechSearch] = useState('')
   const [noteColor, setNoteColor] = useState('')
   const [showColorPicker, setShowColorPicker] = useState(false)
+  const [channels, setChannels] = useState<{ id: string; name?: string }[]>([])
+  const [showChannelModal, setShowChannelModal] = useState(false)
+  const [channelInput, setChannelInput] = useState('')
   const linkCount = getLinkCount(content)
 
   const NOTE_COLORS = [
@@ -64,6 +69,7 @@ export default function NotePage() {
     setImages(n.images)
     setImageCaptions(n.imageCaptions ?? {})
     setNoteColor(n.color ?? '')
+    setChannels(n.channels && n.channels.length > 0 ? n.channels : (n.channelId ? [{ id: n.channelId, name: n.channelName }] : []))
   }, [id, router])
 
   const backPath = note?.folderId ? `/notes?folder=${note.folderId}` : '/notes'
@@ -71,10 +77,10 @@ export default function NotePage() {
   useEffect(() => {
     if (!note) return
     const timer = setTimeout(() => {
-      updateNote(id, { title, content, images, imageCaptions, color: noteColor || undefined })
+      updateNote(id, { title, content, images, imageCaptions, color: noteColor || undefined, channels: channels.length > 0 ? channels : undefined })
     }, 300)
     return () => clearTimeout(timer)
-  }, [title, content, images, imageCaptions, noteColor, id, note])
+  }, [title, content, images, imageCaptions, noteColor, channels, id, note])
 
   useEffect(() => {
     if (!content) return
@@ -93,6 +99,33 @@ export default function NotePage() {
       }
     }
   }, [content])
+
+  const handleLinkChannel = () => {
+    const input = channelInput.trim()
+    if (!input) return
+    const channelMatch = input.match(/(?:youtube\.com|youtu\.be)\/(@[a-zA-Z0-9_-]+)/)
+    const idMatch = input.match(/(?:youtube\.com|youtu\.be)\/channel\/(UC[a-zA-Z0-9_-]{22})/)
+    let newId = ''
+    let newName = ''
+    if (channelMatch) {
+      newId = channelMatch[1]
+      newName = channelMatch[1].replace('@', '')
+      newName = newName.charAt(0).toUpperCase() + newName.slice(1)
+    } else if (idMatch) {
+      newId = idMatch[1]
+      newName = ''
+    } else if (/^UC[a-zA-Z0-9_-]{22}$/.test(input)) {
+      newId = input
+      newName = ''
+    } else {
+      return
+    }
+    if (!channels.find(c => c.id === newId)) {
+      setChannels(prev => [...prev, { id: newId, name: newName || undefined }])
+    }
+    setChannelInput('')
+    setShowChannelModal(false)
+  }
 
   const confirmDelete = () => {
     deleteNote(id)
@@ -148,7 +181,9 @@ export default function NotePage() {
   if (!note) return null
 
   return (
-    <div className="max-w-2xl mx-auto space-y-4 min-h-screen bg-zinc-50 dark:bg-zinc-950" style={{ backgroundImage: 'radial-gradient(circle, #d4d4d8 1px, transparent 1px)', backgroundSize: '24px 24px' }}>
+    <div className="max-w-4xl mx-auto min-h-screen bg-zinc-50 dark:bg-zinc-950" style={{ backgroundImage: 'radial-gradient(circle, #d4d4d8 1px, transparent 1px)', backgroundSize: '24px 24px' }}>
+      <div className="flex gap-6 p-6">
+      <div className="flex-1 space-y-4 min-w-0">
       <div className="flex items-center justify-between">
         <button onClick={() => router.push(backPath)} className="flex items-center gap-1 text-sm text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
           <BackArrowIcon className="w-4 h-4" />
@@ -255,6 +290,20 @@ export default function NotePage() {
             </div>
           )}
         </div>
+        <button
+          onClick={() => setShowChannelModal(true)}
+          className={`flex items-center justify-center w-8 h-8 rounded-lg transition-colors ${
+            channels.length > 0
+              ? 'bg-zinc-200 dark:bg-zinc-700 text-red-500'
+              : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700'
+          }`}
+          title={channels.length > 0 ? `${channels.length} canal${channels.length !== 1 ? 'es' : ''}` : 'Vincular canales'}
+        >
+          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+          </svg>
+        </button>
+        <ChannelSection channels={channels} />
       </div>
 
       <TextEditor
@@ -267,6 +316,68 @@ export default function NotePage() {
       <ImageAttacher images={images} captions={imageCaptions} onAdd={handleAddImage} onRemove={handleRemoveImage} onEditCaption={handleEditCaption} onEditImage={handleEditImage} openAdd={showImageInput} onOpenAddChange={setShowImageInput} />
 
       <DrawingPad open={showDrawingPad} onSave={handleSaveDrawing} onClose={() => setShowDrawingPad(false)} />
+
+      {showChannelModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 dark:bg-black/40" onClick={() => setShowChannelModal(false)}>
+          <div
+            className="bg-white dark:bg-zinc-900 rounded-xl shadow-lg border border-zinc-200 dark:border-zinc-800 w-full max-w-sm mx-4 p-5 space-y-4"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Canales de YouTube</h3>
+              <button onClick={() => { setShowChannelModal(false); setChannelInput('') }} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {channels.length > 0 && (
+              <div className="space-y-1.5 max-h-32 overflow-y-auto">
+                {channels.map((ch, i) => (
+                  <div key={ch.id + i} className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800">
+                    <p className="text-xs text-zinc-700 dark:text-zinc-300 truncate flex-1">{ch.name || ch.id}</p>
+                    <button
+                      onClick={() => setChannels(prev => prev.filter((_, idx) => idx !== i))}
+                      className="text-red-400 hover:text-red-600 transition-colors ml-2 shrink-0"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              Pega la URL del canal de YouTube para añadirlo
+            </p>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={channelInput}
+                onChange={e => setChannelInput(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') { handleLinkChannel() } }}
+                placeholder="https://www.youtube.com/@..."
+                className="flex-1 text-sm bg-zinc-100 dark:bg-zinc-800 border-none rounded-lg px-3 py-2 text-zinc-800 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-400 placeholder-zinc-400"
+              />
+              <button
+                onClick={handleLinkChannel}
+                className="text-sm px-3 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 transition-colors font-medium shrink-0"
+              >
+                +
+              </button>
+            </div>
+            <button
+              onClick={() => setShowChannelModal(false)}
+              className="w-full text-sm px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+            >
+              Hecho
+            </button>
+          </div>
+        </div>
+      )}
 
       {showContactPicker && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 dark:bg-black/40" onClick={() => { setShowContactPicker(false); setContactSearch('') }}>
@@ -410,6 +521,15 @@ export default function NotePage() {
       )}
 
       {showColorPicker && <div className="fixed inset-0 z-40" onClick={() => setShowColorPicker(false)} />}
+
+      </div>
+
+      {extractYouTubeUrls(content).length > 0 && (
+        <div className="w-60 shrink-0 pt-12 space-y-6">
+          <YouTubeSidebar content={content} />
+        </div>
+      )}
+      </div>
 
       <ConfirmModal
         open={showConfirm}
