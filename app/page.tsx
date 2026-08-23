@@ -1,12 +1,13 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import Link from 'next/link'
 import type { Note, Task, MindMap, Contact } from '@/lib/types'
 import { getNotes, getTasks, getMindMaps, getContacts } from '@/lib/storage'
 import { getAllDataAsJSON } from '@/lib/links'
 import { FlatNoteIcon, FlatTaskIcon, FlatMindMapIcon, FlatCalendarIcon, FlatContactIcon, NoteIcon, TaskIcon, MindMapIcon, CheckIcon, SaveIcon, XMarkIcon, TechIcon } from '@/components/Icons'
 import SearchBar from '@/components/SearchBar'
+import ChannelSection from '@/components/ChannelSection'
 
 export default function Home() {
   const [notes, setNotes] = useState<Note[]>([])
@@ -17,6 +18,7 @@ export default function Home() {
   const [showExport, setShowExport] = useState(false)
   const [showFeatures, setShowFeatures] = useState(false)
   const [featureIndex, setFeatureIndex] = useState(0)
+  const [mounted, setMounted] = useState(false)
 
   const features = [
     { text: 'Notas enriquecidas con formato y enlaces', icon: 'N' },
@@ -43,6 +45,7 @@ export default function Home() {
     setTasks(getTasks().slice(0, 5))
     setMindMaps(getMindMaps().slice(0, 3))
     setContacts(getContacts())
+    setMounted(true)
   }, [])
 
   const pendingTasks = tasks.filter(t => !t.completed).length
@@ -51,6 +54,11 @@ export default function Home() {
   const q = search.toLowerCase().trim()
   const allNotes = getNotes()
   const allTasks = getTasks()
+  const memoizedChannels = useMemo(() => {
+    const allCh = allNotes.flatMap(n => n.channels || (n.channelId ? [{ id: n.channelId, name: n.channelName }] : []))
+    return allCh.filter((ch, i, arr) => arr.findIndex(c => c.id === ch.id) === i)
+  }, [allNotes])
+
   const searchResults = q ? {
     notes: allNotes.filter(n => n.title.toLowerCase().includes(q) || n.content.toLowerCase().includes(q)),
     tasks: allTasks.filter(t => t.title.toLowerCase().includes(q) || t.description.toLowerCase().includes(q)),
@@ -227,34 +235,74 @@ export default function Home() {
               </Link>
             ))}
           </div>
+          <h2 className="text-center text-5xl font-black tracking-tight leading-none text-black dark:text-white mt-8" style={{ fontFamily: 'var(--font-display)' }}>
+            Drawer
+          </h2>
+          <div className="relative flex items-center gap-3 px-5 py-3 mt-4 rounded-2xl bg-gradient-to-r from-indigo-50 to-sky-50 dark:from-indigo-950/30 dark:to-sky-950/30 border border-indigo-100 dark:border-indigo-900/50 overflow-hidden">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-7 h-7 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center shrink-0">
+                <span className="text-xs font-bold text-indigo-600 dark:text-indigo-300">{features[featureIndex].icon}</span>
+              </div>
+              <div className="relative h-5 overflow-hidden">
+                <p
+                  key={featureIndex}
+                  className="text-sm text-zinc-600 dark:text-zinc-400 whitespace-nowrap animate-slide-up"
+                >
+                  {features[featureIndex].text}
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-1.5 ml-auto shrink-0">
+              {features.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setFeatureIndex(i)}
+                  className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+                    i === featureIndex ? 'bg-indigo-400 w-4' : 'bg-indigo-200 dark:bg-indigo-800'
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
         </div>
       )}
 
-      {tasks.length > 0 && (
-        <div className="col-span-1 rounded-2xl bg-zinc-50 dark:bg-zinc-900/50 p-5">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold text-zinc-800 dark:text-zinc-200 flex items-center gap-1.5"><TaskIcon className="w-4 h-4 text-zinc-500" />Tareas</h2>
-            <Link href="/tasks" className="text-xs text-amber-500 hover:text-amber-600 dark:text-amber-400 dark:hover:text-amber-300 transition-colors">Ver todas</Link>
-          </div>
-          <div className="space-y-2">
-            {tasks.slice(0, 2).map(task => (
-              <div key={task.id} className="flex items-center gap-3 p-3 rounded-xl bg-zinc-100/70 dark:bg-zinc-800/60">
-                <CheckIcon className={`w-4 h-4 shrink-0 ${task.completed ? 'text-green-500' : 'text-zinc-300 dark:text-zinc-600'}`} />
-                <div className="flex-1 min-w-0">
-                  <p className={`text-sm ${task.completed ? 'line-through text-zinc-400' : 'text-zinc-800 dark:text-zinc-100'}`}>
-                    {task.title}
-                  </p>
-                  {task.dueDate && !task.completed && (
-                    <p className="text-[10px] text-zinc-400 mt-0.5">
-                      {new Date(task.dueDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
+      <div className="col-span-1 rounded-2xl bg-zinc-50 dark:bg-zinc-900/50 p-5">
+        {tasks.length > 0 && (
+          <>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-semibold text-zinc-800 dark:text-zinc-200 flex items-center gap-1.5"><TaskIcon className="w-4 h-4 text-zinc-500" />Tareas</h2>
+              <Link href="/tasks" className="text-xs text-amber-500 hover:text-amber-600 dark:text-amber-400 dark:hover:text-amber-300 transition-colors">Ver todas</Link>
+            </div>
+            <div className="space-y-2">
+              {tasks.slice(0, 2).map(task => (
+                <div key={task.id} className="flex items-center gap-3 p-3 rounded-xl bg-zinc-100/70 dark:bg-zinc-800/60">
+                  <CheckIcon className={`w-4 h-4 shrink-0 ${task.completed ? 'text-green-500' : 'text-zinc-300 dark:text-zinc-600'}`} />
+                  <div className="flex-1 min-w-0">
+                    <p className={`text-sm ${task.completed ? 'line-through text-zinc-400' : 'text-zinc-800 dark:text-zinc-100'}`}>
+                      {task.title}
                     </p>
-                  )}
+                    {task.dueDate && !task.completed && (
+                      <p className="text-[10px] text-zinc-400 mt-0.5">
+                        {new Date(task.dueDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+              ))}
+            </div>
+          </>
+        )}
+        {mounted && (() => {
+          if (memoizedChannels.length === 0) return null
+          return (
+            <div className={`${tasks.length > 0 ? 'mt-4 pt-3 border-t border-zinc-200 dark:border-zinc-700' : ''}`}>
+              <p className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500 mb-2 uppercase tracking-wide">Canales</p>
+              <ChannelSection channels={memoizedChannels} />
+            </div>
+          )
+        })()}
+      </div>
       </div>
       )}
 
@@ -381,36 +429,6 @@ export default function Home() {
         </div>
       )}
 
-      </div>
-
-      <h2 className="text-center text-6xl font-black tracking-tight leading-none text-zinc-800 dark:text-zinc-100" style={{ fontFamily: 'var(--font-display)' }}>
-Drawer</h2>
-
-      <div className="relative flex items-center gap-3 px-5 py-3 rounded-2xl bg-gradient-to-r from-indigo-50 to-sky-50 dark:from-indigo-950/30 dark:to-sky-950/30 border border-indigo-100 dark:border-indigo-900/50 overflow-hidden">
-        <div className="flex items-center gap-2 min-w-0">
-          <div className="w-7 h-7 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center shrink-0">
-            <span className="text-xs font-bold text-indigo-600 dark:text-indigo-300">{features[featureIndex].icon}</span>
-          </div>
-          <div className="relative h-5 overflow-hidden">
-            <p
-              key={featureIndex}
-              className="text-sm text-zinc-600 dark:text-zinc-400 whitespace-nowrap animate-slide-up"
-            >
-              {features[featureIndex].text}
-            </p>
-          </div>
-        </div>
-        <div className="flex gap-1.5 ml-auto shrink-0">
-          {features.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setFeatureIndex(i)}
-              className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
-                i === featureIndex ? 'bg-indigo-400 w-4' : 'bg-indigo-200 dark:bg-indigo-800'
-              }`}
-            />
-          ))}
-        </div>
       </div>
     </div>
     </div>
