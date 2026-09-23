@@ -7,6 +7,7 @@ import { getMindMap, updateMindMap, deleteMindMap, createConnection } from '@/li
 import { PlusIcon, XMarkIcon, BackArrowIcon } from '@/components/Icons'
 import ConfirmModal from '@/components/ConfirmModal'
 import ConnectionsModal from '@/components/ConnectionsModal'
+import NotificationBell from '@/components/NotificationBell'
 
 function countNodes(nodes: MindMapNode[]): number {
   return nodes.reduce((sum, n) => sum + 1 + countNodes(n.children), 0)
@@ -128,10 +129,13 @@ export default function MindMapPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
-        <button onClick={() => router.push('/mindmaps')} className="flex items-center gap-1 text-sm text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
-          <BackArrowIcon className="w-4 h-4" />
-          Volver
-        </button>
+        <div className="flex items-center gap-2">
+          <NotificationBell />
+          <button onClick={() => router.push('/mindmaps')} className="flex items-center gap-1 text-sm text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
+            <BackArrowIcon className="w-4 h-4" />
+            Volver
+          </button>
+        </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowConnections(true)}

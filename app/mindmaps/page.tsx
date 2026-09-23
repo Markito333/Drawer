@@ -8,6 +8,7 @@ import { getMindMaps, createMindMap, deleteMindMap, getConnections, deleteConnec
 import { PlusIcon, XMarkIcon, BackArrowIcon } from '@/components/Icons'
 import ConfirmModal from '@/components/ConfirmModal'
 import ConnectionsModal from '@/components/ConnectionsModal'
+import NotificationBell from '@/components/NotificationBell'
 
 export default function MindMapsPage() {
   const router = useRouter()
@@ -65,10 +66,13 @@ export default function MindMapsPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="relative flex items-center justify-center min-h-[48px]">
-        <Link href="/" className="absolute left-0 flex items-center gap-1 text-sm text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
-          <BackArrowIcon className="w-4 h-4" />
-          Inicio
-        </Link>
+        <div className="absolute left-0 flex items-center gap-2">
+          <NotificationBell />
+          <Link href="/" className="flex items-center gap-1 text-sm text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
+            <BackArrowIcon className="w-4 h-4" />
+            Inicio
+          </Link>
+        </div>
         <div className="text-center">
           <h2 className="text-lg font-semibold text-zinc-800 dark:text-zinc-100">Mapas Mentales</h2>
           <p className="text-sm text-zinc-400">{mindMaps.length} mapas</p>

@@ -8,6 +8,7 @@ import { getCountryInfo } from '@/lib/links'
 import { BackArrowIcon, PlusIcon, XMarkIcon } from '@/components/Icons'
 import ConfirmModal from '@/components/ConfirmModal'
 import SearchBar from '@/components/SearchBar'
+import NotificationBell from '@/components/NotificationBell'
 
 export default function ContactsPage() {
   const [contacts, setContacts] = useState<Contact[]>([])
@@ -83,10 +84,13 @@ export default function ContactsPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="relative flex items-center justify-center min-h-[48px]">
-        <Link href="/" className="absolute left-0 flex items-center gap-1 text-sm text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
-          <BackArrowIcon className="w-4 h-4" />
-          Inicio
-        </Link>
+        <div className="absolute left-0 flex items-center gap-2">
+          <NotificationBell />
+          <Link href="/" className="flex items-center gap-1 text-sm text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
+            <BackArrowIcon className="w-4 h-4" />
+            Inicio
+          </Link>
+        </div>
         <div className="text-center">
           <h2 className="text-lg font-semibold text-zinc-800 dark:text-zinc-100">Contactos</h2>
           <p className="text-sm text-zinc-400">{contacts.length} contacto{contacts.length !== 1 ? 's' : ''}</p>

@@ -14,6 +14,7 @@ import ChannelSection from '@/components/ChannelSection'
 import { BackArrowIcon, ContactIcon, XMarkIcon, PhotoIcon, TechIcon, SearchIcon, TaskIcon, PencilIcon } from '@/components/Icons'
 import type { Contact } from '@/lib/types'
 import ConfirmModal from '@/components/ConfirmModal'
+import NotificationBell from '@/components/NotificationBell'
 
 export default function NotePage() {
   const router = useRouter()
@@ -185,10 +186,13 @@ export default function NotePage() {
       <div className="flex gap-6 p-6">
       <div className="flex-1 space-y-4 min-w-0">
       <div className="flex items-center justify-between">
-        <button onClick={() => router.push(backPath)} className="flex items-center gap-1 text-sm text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
-          <BackArrowIcon className="w-4 h-4" />
-          Volver
-        </button>
+        <div className="flex items-center gap-2">
+          <NotificationBell />
+          <button onClick={() => router.push(backPath)} className="flex items-center gap-1 text-sm text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
+            <BackArrowIcon className="w-4 h-4" />
+            Volver
+          </button>
+        </div>
         <button onClick={() => setShowConfirm(true)} className="text-sm text-zinc-400 hover:text-red-500 transition-colors">
           Eliminar
         </button>

@@ -8,6 +8,7 @@ import { getAllDataAsJSON } from '@/lib/links'
 import { FlatNoteIcon, FlatTaskIcon, FlatMindMapIcon, FlatCalendarIcon, FlatContactIcon, NoteIcon, TaskIcon, MindMapIcon, CheckIcon, SaveIcon, XMarkIcon, TechIcon } from '@/components/Icons'
 import SearchBar from '@/components/SearchBar'
 import ChannelSection from '@/components/ChannelSection'
+import NotificationBell from '@/components/NotificationBell'
 
 export default function Home() {
   const [notes, setNotes] = useState<Note[]>([])
@@ -71,6 +72,7 @@ export default function Home() {
           <img src="/side2.jpg" alt="" className="w-full h-full object-cover" />
         </div>
         <div className="relative z-10 flex items-center gap-2 p-4">
+          <NotificationBell dark />
           <button onClick={() => setShowExport(true)} className="flex items-center justify-center w-9 h-9 rounded-xl bg-blue-500/70 backdrop-blur-sm text-white hover:bg-blue-600/80 transition-colors shrink-0 shadow-sm" title="Guardar datos">
             <SaveIcon className="w-4 h-4" />
           </button>

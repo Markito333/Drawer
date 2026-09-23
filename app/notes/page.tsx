@@ -9,6 +9,7 @@ import { getLinkCount } from '@/lib/links'
 import { PlusIcon, XMarkIcon, FolderIcon, BackArrowIcon } from '@/components/Icons'
 import ConfirmModal from '@/components/ConfirmModal'
 import SearchBar from '@/components/SearchBar'
+import NotificationBell from '@/components/NotificationBell'
 
 export default function NotesPage() {
   return (
@@ -133,17 +134,20 @@ function NotesPageContent() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="relative flex items-center justify-center min-h-[48px]">
-        {currentFolder ? (
-          <button onClick={() => setCurrentFolder(null)} className="absolute left-0 flex items-center gap-1 text-sm text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
-            <BackArrowIcon className="w-4 h-4" />
-            <span>Notas</span>
-          </button>
-        ) : (
-          <Link href="/" className="absolute left-0 flex items-center gap-1 text-sm text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
-            <BackArrowIcon className="w-4 h-4" />
-            Inicio
-          </Link>
-        )}
+        <div className="absolute left-0 flex items-center gap-2">
+          <NotificationBell />
+          {currentFolder ? (
+            <button onClick={() => setCurrentFolder(null)} className="flex items-center gap-1 text-sm text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
+              <BackArrowIcon className="w-4 h-4" />
+              <span>Notas</span>
+            </button>
+          ) : (
+            <Link href="/" className="flex items-center gap-1 text-sm text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
+              <BackArrowIcon className="w-4 h-4" />
+              Inicio
+            </Link>
+          )}
+        </div>
         <div className="text-center">
           <h2 className="text-lg font-semibold text-zinc-800 dark:text-zinc-100">
             {currentFolderData ? currentFolderData.name : 'Notas'}
