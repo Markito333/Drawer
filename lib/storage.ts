@@ -21,6 +21,7 @@ function getData(): AppData {
 
 function saveData(data: AppData) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+  if (typeof window !== 'undefined') window.dispatchEvent(new Event('organizer-data-changed'))
 }
 
 // Folders
