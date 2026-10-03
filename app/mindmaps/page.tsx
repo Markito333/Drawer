@@ -5,9 +5,11 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { MindMap, Connection } from '@/lib/types'
 import { getMindMaps, createMindMap, deleteMindMap, getConnections, deleteConnection, createConnection, updateConnection } from '@/lib/storage'
+import { matchesDateKey } from '@/lib/dates'
 import { PlusIcon, XMarkIcon, BackArrowIcon } from '@/components/Icons'
 import ConfirmModal from '@/components/ConfirmModal'
 import ConnectionsModal from '@/components/ConnectionsModal'
+import DateFilter from '@/components/DateFilter'
 import NotificationBell from '@/components/NotificationBell'
 
 export default function MindMapsPage() {
@@ -17,6 +19,7 @@ export default function MindMapsPage() {
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null)
   const [showConnections, setShowConnections] = useState(false)
   const [editConn, setEditConn] = useState<Connection | null>(null)
+  const [dateFilter, setDateFilter] = useState('')
 
   useEffect(() => {
     setMindMaps(getMindMaps())
@@ -63,6 +66,9 @@ export default function MindMapsPage() {
     setEditConn(null)
   }
 
+  const shownMindMaps = mindMaps.filter(m => matchesDateKey(m.updatedAt, dateFilter))
+  const shownConnections = connections.filter(c => matchesDateKey(c.createdAt, dateFilter))
+
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="relative flex items-center justify-center min-h-[48px]">
@@ -86,20 +92,28 @@ export default function MindMapsPage() {
         </button>
       </div>
 
-      {mindMaps.length === 0 && connections.length === 0 ? (
+      <div className="flex justify-end">
+        <DateFilter value={dateFilter} onChange={setDateFilter} />
+      </div>
+
+      {shownMindMaps.length === 0 && shownConnections.length === 0 ? (
         <div className="text-center py-16">
-          <p className="text-sm text-zinc-400">No hay mapas mentales todavía</p>
-          <button onClick={handleCreate} className="mt-2 text-sm text-zinc-600 dark:text-zinc-400 underline underline-offset-2 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors">
-            Crear el primer mapa
-          </button>
+          <p className="text-sm text-zinc-400">
+            {dateFilter ? 'No hay mapas ni conexiones en esa fecha' : 'No hay mapas mentales todavía'}
+          </p>
+          {!dateFilter && (
+            <button onClick={handleCreate} className="mt-2 text-sm text-zinc-600 dark:text-zinc-400 underline underline-offset-2 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors">
+              Crear el primer mapa
+            </button>
+          )}
         </div>
       ) : (
         <>
-          {mindMaps.length > 0 && (
+          {shownMindMaps.length > 0 && (
             <div>
               <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-3">Mapas</p>
               <div className="grid gap-3 sm:grid-cols-2">
-                {mindMaps.map(m => (
+                {shownMindMaps.map(m => (
                   <Link
                     key={m.id}
                     href={`/mindmaps/${m.id}`}
@@ -127,11 +141,11 @@ export default function MindMapsPage() {
               </div>
             </div>
           )}
-          {connections.length > 0 && (
+          {shownConnections.length > 0 && (
             <div>
               <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-3">Conexiones</p>
               <div className="grid gap-3 sm:grid-cols-2">
-                {connections.map(c => (
+                {shownConnections.map(c => (
                   <button
                     key={c.id}
                     onClick={() => openConnection(c)}

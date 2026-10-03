@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getNotes, getTasks } from '@/lib/storage'
 import { BellIcon, XMarkIcon, EyeIcon, CheckIcon } from './Icons'
@@ -99,9 +99,6 @@ export default function NotificationBell({ dark = false }: { dark?: boolean }) {
   })
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [showRead, setShowRead] = useState(false)
-  const [pos, setPos] = useState<{ top: number; left: number } | null>(null)
-  const btnRef = useRef<HTMLButtonElement>(null)
-  const panelRef = useRef<HTMLDivElement>(null)
 
   const load = () => {
     if (typeof window === 'undefined') return
@@ -141,12 +138,6 @@ export default function NotificationBell({ dark = false }: { dark?: boolean }) {
     })
   }
 
-  const handleOutsideClick = (e: MouseEvent) => {
-    if (btnRef.current?.contains(e.target as Node)) return
-    if (panelRef.current?.contains(e.target as Node)) return
-    setOpen(false)
-  }
-
   useEffect(() => {
     load()
     const onData = () => load()
@@ -156,13 +147,9 @@ export default function NotificationBell({ dark = false }: { dark?: boolean }) {
 
   useEffect(() => {
     if (!open) return
-    document.addEventListener('mousedown', handleOutsideClick)
     const keyHandler = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false) }
     document.addEventListener('keydown', keyHandler)
-    return () => {
-      document.removeEventListener('mousedown', handleOutsideClick)
-      document.removeEventListener('keydown', keyHandler)
-    }
+    return () => document.removeEventListener('keydown', keyHandler)
   }, [open])
 
   const unread = items.filter(i => !seen.has(i.id))
@@ -171,18 +158,8 @@ export default function NotificationBell({ dark = false }: { dark?: boolean }) {
   const visibleItems = showRead ? items.filter(i => seen.has(i.id)) : unread
 
   const toggle = () => {
-    if (!open) {
-      const r = btnRef.current?.getBoundingClientRect()
-      if (r) {
-        const panelW = 320
-        const left = Math.max(8, Math.min(r.left, (window.innerWidth || 0) - panelW - 8))
-        setPos({ top: r.bottom + 8, left })
-      }
-      load()
-      setOpen(true)
-    } else {
-      setOpen(false)
-    }
+    if (!open) load()
+    setOpen(!open)
   }
 
   const markAllRead = () => {
@@ -224,7 +201,6 @@ export default function NotificationBell({ dark = false }: { dark?: boolean }) {
   return (
     <>
       <button
-        ref={btnRef}
         onClick={toggle}
         className={`relative flex items-center justify-center w-9 h-9 rounded-xl border transition-colors shrink-0 ${
           dark
@@ -241,20 +217,23 @@ export default function NotificationBell({ dark = false }: { dark?: boolean }) {
         )}
       </button>
 
-      {open && pos && (
+      {open && (
         <div
-          ref={panelRef}
-          className="fixed z-[100] w-80 max-w-[calc(100vw-2rem)] rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 shadow-xl overflow-hidden"
-          style={{ top: pos.top, left: pos.left }}
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/20 dark:bg-black/40 p-4"
+          onClick={() => setOpen(false)}
         >
-          <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-100 dark:border-zinc-800">
-            <div className="flex items-center gap-2.5 flex-1 min-w-0">
+        <div
+          className="w-full max-w-sm mx-2 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 shadow-xl overflow-hidden animate-slide-up"
+          onClick={e => e.stopPropagation()}
+        >
+          <div className="flex items-center justify-between px-5 py-4">
+            <div className="flex items-center gap-2.5 min-w-0">
               <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100 shrink-0">Notificaciones</p>
               <div className="flex items-center rounded-full bg-zinc-100 dark:bg-zinc-800 p-0.5">
                 <button
                   type="button"
                   onClick={() => setShowRead(false)}
-                  className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-medium transition-colors ${
+                  className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors ${
                     !showRead
                       ? 'bg-white dark:bg-zinc-700 text-zinc-800 dark:text-zinc-100 shadow-sm'
                       : 'text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200'
@@ -270,7 +249,7 @@ export default function NotificationBell({ dark = false }: { dark?: boolean }) {
                 <button
                   type="button"
                   onClick={() => setShowRead(true)}
-                  className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-medium transition-colors ${
+                  className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors ${
                     showRead
                       ? 'bg-white dark:bg-zinc-700 text-zinc-800 dark:text-zinc-100 shadow-sm'
                       : 'text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200'
@@ -285,7 +264,7 @@ export default function NotificationBell({ dark = false }: { dark?: boolean }) {
                 </button>
               </div>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-3 shrink-0">
               {badgeCount > 0 && !showRead && (
                 <button
                   type="button"
@@ -301,7 +280,7 @@ export default function NotificationBell({ dark = false }: { dark?: boolean }) {
             </div>
           </div>
 
-          <div className="max-h-[60vh] overflow-y-auto p-2">
+          <div className="max-h-[55vh] overflow-y-auto px-2 pb-2">
             {loading ? (
               <div className="flex items-center justify-center py-8">
                 <span className="w-5 h-5 rounded-full border-2 border-zinc-300 border-t-transparent animate-spin" />
@@ -401,6 +380,7 @@ export default function NotificationBell({ dark = false }: { dark?: boolean }) {
               </>
             )}
           </div>
+        </div>
         </div>
       )}
     </>

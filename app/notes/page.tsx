@@ -6,8 +6,10 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import type { Note, Folder } from '@/lib/types'
 import { getNotes, createNote, deleteNote, updateNote, reorderNotes, getFolders, createFolder, deleteFolder } from '@/lib/storage'
 import { getLinkCount } from '@/lib/links'
+import { matchesDateKey } from '@/lib/dates'
 import { PlusIcon, XMarkIcon, FolderIcon, BackArrowIcon } from '@/components/Icons'
 import ConfirmModal from '@/components/ConfirmModal'
+import DateFilter from '@/components/DateFilter'
 import SearchBar from '@/components/SearchBar'
 import NotificationBell from '@/components/NotificationBell'
 
@@ -30,6 +32,7 @@ function NotesPageContent() {
   const [dragOverFolderId, setDragOverFolderId] = useState<string | null>(null)
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null)
   const [search, setSearch] = useState('')
+  const [dateFilter, setDateFilter] = useState('')
   const [showFolderModal, setShowFolderModal] = useState(false)
   const [folderName, setFolderName] = useState('')
   const folderInputRef = useRef<HTMLInputElement>(null)
@@ -57,7 +60,8 @@ function NotesPageContent() {
 
   const q = search.toLowerCase().trim()
   const searchedNotes = q ? notes.filter(n => n.title.toLowerCase().includes(q) || n.content.toLowerCase().includes(q)) : null
-  const filteredNotes = searchedNotes ?? notes.filter(n => n.folderId === currentFolder)
+  const filteredNotes = (searchedNotes ?? notes.filter(n => n.folderId === currentFolder))
+    .filter(n => matchesDateKey(n.updatedAt, dateFilter))
   const currentFolderData = currentFolder ? folders.find(f => f.id === currentFolder) : null
 
   const handleCreateNote = () => {
@@ -112,7 +116,7 @@ function NotesPageContent() {
     e.preventDefault()
     if (!dragId || dragId === targetId) return
 
-    const ids = filteredNotes.map(n => n.id)
+    const ids = notes.map(n => n.id)
     const fromIdx = ids.indexOf(dragId)
     const toIdx = ids.indexOf(targetId)
     if (fromIdx === -1 || toIdx === -1) return
@@ -174,9 +178,12 @@ function NotesPageContent() {
         </div>
       </div>
 
-      <SearchBar value={search} onChange={setSearch} placeholder="Buscar en todas las notas..." />
+      <div className="flex items-center gap-2">
+        <SearchBar value={search} onChange={setSearch} placeholder="Buscar en todas las notas..." className="flex-1" />
+        <DateFilter value={dateFilter} onChange={setDateFilter} />
+      </div>
 
-      {!currentFolder && !search && folders.length > 0 && (
+      {!currentFolder && !search && !dateFilter && folders.length > 0 && (
         <div className="grid grid-cols-4 sm:grid-cols-5 gap-3">
           {folders.map(folder => {
             const count = notes.filter(n => n.folderId === folder.id).length
@@ -232,9 +239,11 @@ function NotesPageContent() {
       {filteredNotes.length === 0 ? (
         <div className="text-center py-16">
           <p className="text-sm text-zinc-400">
-            {search ? 'No se encontraron notas' : currentFolder ? 'No hay notas en esta carpeta' : 'No hay notas todavía'}
+            {search || dateFilter
+              ? 'No se encontraron notas'
+              : currentFolder ? 'No hay notas en esta carpeta' : 'No hay notas todavía'}
           </p>
-          {!search && (
+          {!search && !dateFilter && (
             <button onClick={handleCreateNote} className="mt-2 text-sm text-zinc-600 dark:text-zinc-400 underline underline-offset-2 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors">
               Crear la primera nota
             </button>

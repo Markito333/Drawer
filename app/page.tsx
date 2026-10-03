@@ -80,7 +80,14 @@ export default function Home() {
             <SearchBar value={search} onChange={setSearch} placeholder="Buscar..." inputClassName="bg-white/30 backdrop-blur-sm text-white placeholder-white/50 focus:ring-white/30" />
           </div>
         </div>
-        <div className="relative z-10 flex flex-col items-center justify-center flex-1 px-6">
+        <div className="relative z-10 flex flex-col items-center justify-center flex-1 px-6 text-center">
+          <p className="text-sm font-medium text-white drop-shadow-[0_1px_6px_rgba(0,0,0,0.45)]">Bienvenido un día más</p>
+          <button
+            type="button"
+            className="mt-3 text-xs font-medium px-4 py-2 rounded-xl bg-white/90 backdrop-blur-sm text-zinc-800 hover:bg-white shadow-sm transition-all"
+          >
+            Ver día
+          </button>
         </div>
         <div className="relative z-10 px-4 pb-5">
           <button
@@ -169,11 +176,11 @@ export default function Home() {
           <div className="flex-1 h-full min-h-[5rem] rounded-xl bg-zinc-100/50 dark:bg-zinc-800/30 flex items-center justify-center gap-4 px-4 py-2">
             {(() => {
               const chartData = [
-                { value: notes.length, color: '#FFB5A7', label: 'Notas' },
-                { value: tasks.length, color: '#FCD5CE', label: 'Tareas' },
-                { value: mindMaps.length, color: '#FFD6BA', label: 'Mapas' },
-                { value: upcomingTasks.length, color: '#FCE4B8', label: 'Calendario' },
-                { value: contacts.length, color: '#FFF1C1', label: 'Contactos' },
+                { value: notes.length, color: '#9EC5F5', label: 'Notas' },
+                { value: tasks.length, color: '#F5B8D0', label: 'Tareas' },
+                { value: mindMaps.length, color: '#F3A9A0', label: 'Mapas' },
+                { value: upcomingTasks.length, color: '#F8DFA0', label: 'Calendario' },
+                { value: contacts.length, color: '#F5C08C', label: 'Contactos' },
               ]
               const total = chartData.reduce((s, d) => s + d.value, 0)
               if (total === 0) return <span className="text-[10px] text-zinc-300 dark:text-zinc-600">Sin datos</span>

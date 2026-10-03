@@ -5,10 +5,12 @@ import Link from 'next/link'
 import type { Task, SubTask, TaskStatus } from '@/lib/types'
 import { getTasks, createTask, updateTask, deleteTask, getContacts, createContact } from '@/lib/storage'
 import { getLinkCount, linkifyHTML, extractNamePhonePairs } from '@/lib/links'
+import { matchesDateKey } from '@/lib/dates'
 import ImageAttacher from '@/components/ImageAttacher'
 import TextEditor from '@/components/TextEditor'
 import { BackArrowIcon, CheckCircleIcon, CircleIcon, XMarkIcon, PlusIcon, SparkleIcon, ClockIcon, PlayIcon, ChevronIcon } from '@/components/Icons'
 import ConfirmModal from '@/components/ConfirmModal'
+import DateFilter from '@/components/DateFilter'
 import SearchBar from '@/components/SearchBar'
 import NotificationBell from '@/components/NotificationBell'
 
@@ -19,6 +21,7 @@ export default function TasksPage() {
   const [showCreate, setShowCreate] = useState(false)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<TaskStatus | 'all'>('all')
+  const [dateFilter, setDateFilter] = useState('')
   const [filterOpen, setFilterOpen] = useState(false)
   const filterRef = useRef<HTMLDivElement>(null)
 
@@ -228,6 +231,7 @@ export default function TasksPage() {
   const displayedTasks = tasks.filter(t => {
     if (q && !t.title.toLowerCase().includes(q) && !t.description.toLowerCase().includes(q)) return false
     if (statusFilter !== 'all' && t.status !== statusFilter) return false
+    if (dateFilter && !matchesDateKey(t.dueDate, dateFilter)) return false
     return true
   })
   const sorted = [...displayedTasks].sort((a, b) => {
@@ -297,10 +301,11 @@ export default function TasksPage() {
             </div>
           )}
         </div>
+        <DateFilter value={dateFilter} onChange={setDateFilter} />
       </div>
 
       {sorted.length === 0 ? (
-        search ? (
+        search || dateFilter ? (
           <div className="text-center py-16">
             <p className="text-sm text-zinc-400">No se encontraron tareas</p>
           </div>

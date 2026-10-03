@@ -5,14 +5,17 @@ import Link from 'next/link'
 import type { Contact } from '@/lib/types'
 import { getContacts, createContact, deleteContact, updateContact } from '@/lib/storage'
 import { getCountryInfo } from '@/lib/links'
+import { matchesDateKey } from '@/lib/dates'
 import { BackArrowIcon, PlusIcon, XMarkIcon } from '@/components/Icons'
 import ConfirmModal from '@/components/ConfirmModal'
+import DateFilter from '@/components/DateFilter'
 import SearchBar from '@/components/SearchBar'
 import NotificationBell from '@/components/NotificationBell'
 
 export default function ContactsPage() {
   const [contacts, setContacts] = useState<Contact[]>([])
   const [search, setSearch] = useState('')
+  const [dateFilter, setDateFilter] = useState('')
   const [showCreate, setShowCreate] = useState(false)
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null)
   const [editTargetId, setEditTargetId] = useState<string | null>(null)
@@ -75,9 +78,9 @@ export default function ContactsPage() {
   }
 
   const q = search.toLowerCase().trim()
-  const displayed = q
-    ? contacts.filter(c => c.name.toLowerCase().includes(q) || c.phone.includes(q))
-    : contacts
+  const displayed = contacts
+    .filter(c => !q || c.name.toLowerCase().includes(q) || c.phone.includes(q))
+    .filter(c => matchesDateKey(c.createdAt, dateFilter))
 
   const fieldClass = "w-full text-sm bg-zinc-100 dark:bg-zinc-800 border-none rounded-lg px-3 py-2 text-zinc-800 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-400 dark:focus:ring-zinc-500 placeholder-zinc-400"
 
@@ -101,12 +104,15 @@ export default function ContactsPage() {
         </button>
       </div>
 
-      <SearchBar value={search} onChange={setSearch} placeholder="Buscar contactos..." />
+      <div className="flex items-center gap-2">
+        <SearchBar value={search} onChange={setSearch} placeholder="Buscar contactos..." className="flex-1" />
+        <DateFilter value={dateFilter} onChange={setDateFilter} />
+      </div>
 
       {displayed.length === 0 ? (
         <div className="text-center py-16">
           <p className="text-sm text-zinc-400">
-            {search ? 'No se encontraron contactos' : 'No hay contactos todavía'}
+            {search || dateFilter ? 'No se encontraron contactos' : 'No hay contactos todavía'}
           </p>
         </div>
       ) : (
