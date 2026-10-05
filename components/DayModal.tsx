@@ -4,9 +4,10 @@ import { useState, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import type { Note, Task } from '@/lib/types'
-import { getNotes, getTasks, createNote, createTask } from '@/lib/storage'
+import { getNotes, getTasks, createNote } from '@/lib/storage'
 import { toDateKey, formatDateKey } from '@/lib/dates'
 import { BackArrowIcon, NoteIcon, TaskIcon, PhotoIcon, CheckCircleIcon, CircleIcon, EyeIcon, XMarkIcon } from './Icons'
+import QuickCreate from './QuickCreate'
 
 const WEEKDAYS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
 const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
@@ -56,6 +57,7 @@ export default function DayModal({ open, onClose }: Props) {
   })
   const [activeKey, setActiveKey] = useState<string | null>(null)
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
+  const [draft, setDraft] = useState<{ kind: 'note' | 'task'; key: string } | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
   const imageDayRef = useRef('')
 
@@ -109,25 +111,6 @@ export default function DayModal({ open, onClose }: Props) {
     })
     close()
     router.push(`/notes/${id}`)
-  }
-
-  const createTaskForDay = (key: string) => {
-    const id = crypto.randomUUID()
-    createTask({
-      id,
-      title: 'Nueva tarea',
-      description: '',
-      completed: false,
-      status: 'new',
-      subtasks: [],
-      images: [],
-      imageCaptions: {},
-      dueDate: keyToNoon(key),
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    })
-    close()
-    router.push('/tasks')
   }
 
   const pickImage = (key: string) => {
@@ -252,14 +235,14 @@ export default function DayModal({ open, onClose }: Props) {
                 {isActive && (
                   <div className={`absolute ${popAlign} top-full mt-1 z-50 flex items-center gap-0.5 p-1 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 shadow-lg`}>
                     <button
-                      onClick={() => createNoteForDay(key)}
+                      onClick={() => setDraft({ kind: 'note', key })}
                       title="Crear nota"
                       className="p-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
                     >
                       <NoteIcon className="w-3.5 h-3.5" />
                     </button>
                     <button
-                      onClick={() => createTaskForDay(key)}
+                      onClick={() => setDraft({ kind: 'task', key })}
                       title="Crear tarea"
                       className="p-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
                     >
@@ -388,6 +371,10 @@ export default function DayModal({ open, onClose }: Props) {
 
         <input ref={fileRef} type="file" accept="image/*" onChange={onFileChosen} className="hidden" />
       </div>
+
+      {draft && (
+        <QuickCreate kind={draft.kind} dayKey={draft.key} onClose={() => setDraft(null)} />
+      )}
     </div>
   )
 }
