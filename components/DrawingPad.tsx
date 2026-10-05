@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState, useEffect } from 'react'
-import { XMarkIcon } from '@/components/Icons'
+import CloseButton from '@/components/CloseButton'
 
 interface Props {
   open: boolean
@@ -111,9 +111,7 @@ export default function DrawingPad({ open, onSave, onClose }: Props) {
       >
         <div className="flex items-center justify-between p-4 border-b border-zinc-100 dark:border-zinc-800">
           <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Dibujar</h3>
-          <button onClick={onClose} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
-            <XMarkIcon className="w-4 h-4" />
-          </button>
+          <CloseButton onClick={onClose} />
         </div>
 
         <div className="p-4">

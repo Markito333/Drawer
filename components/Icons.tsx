@@ -59,9 +59,9 @@ export function PlusIcon({ className }: Props) {
   )
 }
 
-export function XMarkIcon({ className }: Props) {
+export function XMarkIcon({ className, strokeWidth = 1.5 }: Props & { strokeWidth?: number }) {
   return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={strokeWidth} stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
     </svg>
   )

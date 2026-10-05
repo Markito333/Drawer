@@ -5,7 +5,8 @@ import Link from 'next/link'
 import type { Note, Task, MindMap, Contact } from '@/lib/types'
 import { getNotes, getTasks, getMindMaps, getContacts } from '@/lib/storage'
 import { getAllDataAsJSON } from '@/lib/links'
-import { FlatNoteIcon, FlatTaskIcon, FlatMindMapIcon, FlatCalendarIcon, FlatContactIcon, NoteIcon, TaskIcon, MindMapIcon, CheckIcon, SaveIcon, XMarkIcon, TechIcon } from '@/components/Icons'
+import { FlatNoteIcon, FlatTaskIcon, FlatMindMapIcon, FlatCalendarIcon, FlatContactIcon, NoteIcon, TaskIcon, CheckIcon, SaveIcon, TechIcon } from '@/components/Icons'
+import CloseButton from '@/components/CloseButton'
 import SearchBar from '@/components/SearchBar'
 import ChannelSection from '@/components/ChannelSection'
 import DayModal from '@/components/DayModal'
@@ -339,9 +340,7 @@ export default function Home() {
           >
             <div className="flex items-center justify-between p-5 border-b border-zinc-100 dark:border-zinc-800">
               <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Guardar datos</h3>
-              <button onClick={() => setShowExport(false)} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
-                <XMarkIcon className="w-4 h-4" />
-              </button>
+              <CloseButton onClick={() => setShowExport(false)} />
             </div>
             <div className="p-5 space-y-4">
               <p className="text-sm text-zinc-600 dark:text-zinc-400">
@@ -386,9 +385,7 @@ export default function Home() {
           >
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-base font-semibold text-zinc-800 dark:text-zinc-100">Funcionalidades</h2>
-              <button onClick={() => setShowFeatures(false)} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
-                <XMarkIcon className="w-5 h-5" />
-              </button>
+              <CloseButton onClick={() => setShowFeatures(false)} />
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
               <div className="md:col-span-2 bg-white dark:bg-zinc-900 rounded-xl p-4 flex flex-col items-center gap-2 text-center shadow-sm hover:shadow-md transition-shadow">

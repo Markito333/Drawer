@@ -7,6 +7,7 @@ import { getContacts, createContact, deleteContact, updateContact } from '@/lib/
 import { getCountryInfo } from '@/lib/links'
 import { matchesDateKey } from '@/lib/dates'
 import { BackArrowIcon, PlusIcon, XMarkIcon } from '@/components/Icons'
+import CloseButton from '@/components/CloseButton'
 import ConfirmModal from '@/components/ConfirmModal'
 import DateFilter from '@/components/DateFilter'
 import SearchBar from '@/components/SearchBar'
@@ -166,9 +167,7 @@ export default function ContactsPage() {
           >
             <div className="flex items-center justify-between p-5 border-b border-zinc-100 dark:border-zinc-800">
               <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Nuevo contacto</h3>
-              <button onClick={() => setShowCreate(false)} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
-                <XMarkIcon className="w-4 h-4" />
-              </button>
+              <CloseButton onClick={() => setShowCreate(false)} />
             </div>
             <div className="p-5 space-y-4">
               <input
@@ -230,9 +229,7 @@ export default function ContactsPage() {
             >
               <div className="flex items-center justify-between p-5 border-b border-zinc-100 dark:border-zinc-800">
                 <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Editar contacto</h3>
-                <button onClick={() => setEditTargetId(null)} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
-                  <XMarkIcon className="w-4 h-4" />
-                </button>
+                <CloseButton onClick={() => setEditTargetId(null)} />
               </div>
               <div className="p-5 space-y-4">
                 <input

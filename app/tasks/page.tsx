@@ -9,6 +9,7 @@ import { matchesDateKey } from '@/lib/dates'
 import ImageAttacher from '@/components/ImageAttacher'
 import TextEditor from '@/components/TextEditor'
 import { BackArrowIcon, CheckCircleIcon, CircleIcon, XMarkIcon, PlusIcon, SparkleIcon, ClockIcon, PlayIcon, ChevronIcon } from '@/components/Icons'
+import CloseButton from '@/components/CloseButton'
 import ConfirmModal from '@/components/ConfirmModal'
 import DateFilter from '@/components/DateFilter'
 import SearchBar from '@/components/SearchBar'
@@ -357,9 +358,7 @@ export default function TasksPage() {
           >
             <div className="flex items-center justify-between p-5 border-b border-zinc-100 dark:border-zinc-800">
               <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Nueva tarea</h3>
-              <button onClick={() => setShowCreate(false)} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
-                <XMarkIcon className="w-4 h-4" />
-              </button>
+              <CloseButton onClick={() => setShowCreate(false)} />
             </div>
 
             <div className="p-5 space-y-4">
@@ -450,9 +449,7 @@ export default function TasksPage() {
                 onBlur={e => updateTaskField(modalTask.id, 'title', e.target.value)}
                 className={"text-sm font-semibold bg-zinc-100 dark:bg-zinc-800 border-none rounded-lg px-3 py-2 text-zinc-800 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-400"}
               />
-              <button onClick={() => setModalTaskId(null)} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors ml-2 shrink-0">
-                <XMarkIcon className="w-4 h-4" />
-              </button>
+              <CloseButton onClick={() => setModalTaskId(null)} />
             </div>
 
             <div className="p-5 space-y-4">

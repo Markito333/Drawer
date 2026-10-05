@@ -6,7 +6,8 @@ import Link from 'next/link'
 import type { Note, Task } from '@/lib/types'
 import { getNotes, getTasks, createNote } from '@/lib/storage'
 import { toDateKey, formatDateKey } from '@/lib/dates'
-import { BackArrowIcon, NoteIcon, TaskIcon, PhotoIcon, CheckCircleIcon, CircleIcon, EyeIcon, XMarkIcon } from './Icons'
+import { BackArrowIcon, NoteIcon, TaskIcon, PhotoIcon, CheckCircleIcon, CircleIcon, EyeIcon } from './Icons'
+import CloseButton from './CloseButton'
 import QuickCreate from './QuickCreate'
 
 const WEEKDAYS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
@@ -148,9 +149,7 @@ export default function DayModal({ open, onClose }: Props) {
             <h2 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100 leading-tight">Ver día</h2>
             <p className="text-[10px] text-zinc-400 leading-tight">Toca un día para ver y crear</p>
           </div>
-          <button onClick={close} className="ml-auto text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
-            <XMarkIcon className="w-5 h-5" />
-          </button>
+          <CloseButton onClick={close} className="ml-auto" />
         </div>
 
         <div className="flex items-center justify-between mb-3 px-1">

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import CloseButton from './CloseButton'
 
 interface ChannelVideo {
   id: string
@@ -97,11 +98,7 @@ export default function ChannelSection({ channels }: Props) {
           >
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Canales vinculados</p>
-              <button onClick={() => setShowModal(false)} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+              <CloseButton onClick={() => setShowModal(false)} />
             </div>
 
             {loading && (

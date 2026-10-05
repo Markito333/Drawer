@@ -3,7 +3,8 @@
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createNote, createTask } from '@/lib/storage'
-import { CheckIcon, SubTaskIcon, PencilIcon, XMarkIcon } from './Icons'
+import { CheckIcon, SubTaskIcon, PencilIcon } from './Icons'
+import CloseButton from './CloseButton'
 
 function keyToNoon(key: string): number {
   const [y, m, d] = key.split('-').map(Number)
@@ -127,9 +128,7 @@ export default function QuickCreate({ kind, dayKey, onClose }: Props) {
           <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
             {kind === 'note' ? 'Nueva nota' : 'Nueva tarea'}
           </p>
-          <button onClick={onClose} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
-            <XMarkIcon className="w-5 h-5" />
-          </button>
+          <CloseButton onClick={onClose} />
         </div>
 
         {kind === 'task' && (

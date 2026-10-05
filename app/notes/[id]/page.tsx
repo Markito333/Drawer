@@ -11,7 +11,8 @@ import TextEditor from '@/components/TextEditor'
 import DrawingPad from '@/components/DrawingPad'
 import YouTubeSidebar from '@/components/YouTubeSidebar'
 import ChannelSection from '@/components/ChannelSection'
-import { BackArrowIcon, ContactIcon, XMarkIcon, PhotoIcon, TechIcon, SearchIcon, TaskIcon, PencilIcon } from '@/components/Icons'
+import { BackArrowIcon, ContactIcon, PhotoIcon, TechIcon, SearchIcon, TaskIcon, PencilIcon } from '@/components/Icons'
+import CloseButton from '@/components/CloseButton'
 import type { Contact } from '@/lib/types'
 import ConfirmModal from '@/components/ConfirmModal'
 import NotificationBell from '@/components/NotificationBell'
@@ -329,11 +330,7 @@ export default function NotePage() {
           >
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Canales de YouTube</h3>
-              <button onClick={() => { setShowChannelModal(false); setChannelInput('') }} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+              <CloseButton onClick={() => { setShowChannelModal(false); setChannelInput('') }} />
             </div>
 
             {channels.length > 0 && (
@@ -391,9 +388,7 @@ export default function NotePage() {
           >
             <div className="flex items-center justify-between p-4 border-b border-zinc-100 dark:border-zinc-800 shrink-0">
               <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Insertar contacto</h3>
-              <button onClick={() => { setShowContactPicker(false); setContactSearch('') }} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
-                <XMarkIcon className="w-4 h-4" />
-              </button>
+              <CloseButton onClick={() => { setShowContactPicker(false); setContactSearch('') }} />
             </div>
             <div className="px-4 pt-3 pb-2">
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800">
@@ -448,9 +443,7 @@ export default function NotePage() {
           >
             <div className="flex items-center justify-between p-4 border-b border-zinc-100 dark:border-zinc-800 shrink-0">
               <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Tecnologías</h3>
-              <button onClick={() => { setShowTechPicker(false); setTechSearch('') }} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
-                <XMarkIcon className="w-4 h-4" />
-              </button>
+              <CloseButton onClick={() => { setShowTechPicker(false); setTechSearch('') }} />
             </div>
             <div className="px-4 pt-3 pb-2">
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800">

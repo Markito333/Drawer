@@ -1,6 +1,6 @@
 'use client'
 
-import { XMarkIcon } from './Icons'
+import CloseButton from './CloseButton'
 
 interface Props {
   open: boolean
@@ -21,9 +21,7 @@ export default function ConfirmModal({ open, title, message, onConfirm, onCancel
       >
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">{title}</h3>
-          <button onClick={onCancel} className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
-            <XMarkIcon className="w-4 h-4" />
-          </button>
+          <CloseButton onClick={onCancel} />
         </div>
         <p className="text-sm text-zinc-500 dark:text-zinc-400">{message}</p>
         <div className="flex justify-end gap-2">
