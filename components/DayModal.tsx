@@ -82,9 +82,13 @@ export default function DayModal({ open, onClose }: Props) {
   const nextMonth = () => setCursor(new Date(year, month + 1, 1))
   const goToday = () => setCursor(new Date(today.getFullYear(), today.getMonth(), 1))
 
-  const close = () => {
+  const closeDetail = () => {
     setActiveKey(null)
     setExpanded(new Set())
+  }
+
+  const close = () => {
+    closeDetail()
     onClose()
   }
 
@@ -173,7 +177,7 @@ export default function DayModal({ open, onClose }: Props) {
           ))}
         </div>
 
-        <div className="grid grid-cols-7 gap-1 pb-16">
+        <div className="grid grid-cols-7 gap-1">
           {Array.from({ length: firstDayOfWeek }).map((_, i) => (
             <div key={`empty-${i}`} />
           ))}
@@ -182,10 +186,7 @@ export default function DayModal({ open, onClose }: Props) {
             const key = toDateKey(new Date(year, month, day).getTime())
             const notes = notesByDate.get(key) || []
             const tasks = tasksByDate.get(key) || []
-            const isActive = activeKey === key
             const isToday = key === todayKey
-            const col = (firstDayOfWeek + i) % 7
-            const popAlign = col <= 1 ? 'left-0' : col >= 5 ? 'right-0' : 'left-1/2 -translate-x-1/2'
             const preview = [
               ...notes.map(n => ({ key: `n${n.id}`, label: n.title || 'Sin título', kind: 'note' as const })),
               ...tasks.map(t => ({ key: `t${t.id}`, label: t.title, kind: 'task' as const })),
@@ -206,12 +207,10 @@ export default function DayModal({ open, onClose }: Props) {
                   {isToday && <p className={`text-[9px] font-bold leading-none ${pastel.text}`}>Hoy</p>}
                 </div>
                 <button
-                  onClick={() => { setExpanded(new Set()); setActiveKey(prev => prev === key ? null : key) }}
+                  onClick={() => { setExpanded(new Set()); setActiveKey(key) }}
                   className={`w-full min-h-[4rem] rounded-xl px-1 py-1.5 flex flex-col transition-colors border-2 ${
                     isToday ? pastel.border : 'border-transparent'
-                  } ${dayBg || 'bg-white dark:bg-zinc-900/60 hover:bg-zinc-200/70 dark:hover:bg-zinc-700/50'} ${
-                    isActive ? 'ring-2 ring-zinc-400 dark:ring-zinc-500' : ''
-                  }`}
+                  } ${dayBg || 'bg-white dark:bg-zinc-900/60 hover:bg-zinc-200/70 dark:hover:bg-zinc-700/50'}`}
                 >
                   <div className="flex-1 space-y-0.5 overflow-hidden pointer-events-none">
                     {preview.slice(0, 2).map(it => (
@@ -230,46 +229,57 @@ export default function DayModal({ open, onClose }: Props) {
                     {day}
                   </span>
                 </button>
-
-                {isActive && (
-                  <div className={`absolute ${popAlign} top-full mt-1 z-50 flex items-center gap-0.5 p-1 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 shadow-lg`}>
-                    <button
-                      onClick={() => setDraft({ kind: 'note', key })}
-                      title="Crear nota"
-                      className="p-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-                    >
-                      <NoteIcon className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={() => setDraft({ kind: 'task', key })}
-                      title="Crear tarea"
-                      className="p-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-                    >
-                      <TaskIcon className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={() => pickImage(key)}
-                      title="Añadir imagen"
-                      className="p-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-                    >
-                      <PhotoIcon className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                )}
               </div>
             )
           })}
         </div>
 
-        {activeKey && (
-          <div className="mt-2 pt-3 border-t border-zinc-200 dark:border-zinc-700">
-            <p className="text-xs font-medium text-zinc-700 dark:text-zinc-300 capitalize mb-2">
-              {formatDateKey(activeKey)}
-            </p>
+        <input ref={fileRef} type="file" accept="image/*" onChange={onFileChosen} className="hidden" />
+      </div>
+
+      {activeKey && (
+        <div className="fixed inset-0 z-[55] flex items-center justify-center bg-black/20 dark:bg-black/40 p-4" onClick={closeDetail}>
+          <div
+            className="bg-zinc-100 dark:bg-zinc-800/95 rounded-2xl shadow-xl w-full max-w-md p-5 max-h-[80vh] overflow-y-auto"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-start gap-3 mb-4">
+              <div className="flex items-center gap-0.5 p-1 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 shrink-0">
+                <button
+                  onClick={() => setDraft({ kind: 'note', key: activeKey })}
+                  title="Crear nota"
+                  className="p-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                >
+                  <NoteIcon className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={() => setDraft({ kind: 'task', key: activeKey })}
+                  title="Crear tarea"
+                  className="p-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                >
+                  <TaskIcon className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={() => pickImage(activeKey)}
+                  title="Añadir imagen"
+                  className="p-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                >
+                  <PhotoIcon className="w-3.5 h-3.5" />
+                </button>
+              </div>
+              <div className="min-w-0">
+                <p className="text-2xl font-bold text-zinc-800 dark:text-zinc-100 leading-none tracking-tight">
+                  {headerDate.getDate()} {MONTHS[headerDate.getMonth()]}
+                </p>
+                <p className="text-[10px] text-zinc-400 leading-tight mt-0.5 capitalize">{formatDateKey(activeKey)}</p>
+              </div>
+              <CloseButton onClick={closeDetail} className="ml-auto shrink-0" />
+            </div>
+
             {activeNotes.length === 0 && activeTasks.length === 0 ? (
               <p className="text-xs text-zinc-400 py-2">Sin nada para este día</p>
             ) : (
-              <div className="space-y-1.5 max-h-48 overflow-y-auto">
+              <div className="space-y-1.5">
                 {activeNotes.map(note => {
                   const isOpen = expanded.has(`n${note.id}`)
                   const plain = note.content.replace(/<[^>]+>/g, '').trim()
@@ -366,10 +376,8 @@ export default function DayModal({ open, onClose }: Props) {
               </div>
             )}
           </div>
-        )}
-
-        <input ref={fileRef} type="file" accept="image/*" onChange={onFileChosen} className="hidden" />
-      </div>
+        </div>
+      )}
 
       {draft && (
         <QuickCreate kind={draft.kind} dayKey={draft.key} onClose={() => setDraft(null)} />
