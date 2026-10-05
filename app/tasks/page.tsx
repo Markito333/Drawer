@@ -48,6 +48,14 @@ export default function TasksPage() {
     setTasks(getTasks())
   }, [])
 
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get('task')
+    if (id) {
+      setModalTaskId(id)
+      window.history.replaceState(null, '', '/tasks')
+    }
+  }, [])
+
   const refresh = () => setTasks(getTasks())
 
   const resetCreateForm = () => {
