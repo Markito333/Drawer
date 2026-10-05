@@ -286,13 +286,17 @@ export default function DayModal({ open, onClose }: Props) {
                   return (
                     <div key={note.id} className="rounded-lg bg-[#9EC5F5]/25 dark:bg-[#4E6B92]/20 overflow-hidden">
                       <div className="flex items-center gap-2 p-2">
-                        <NoteIcon className="w-3.5 h-3.5 text-[#5B8DD9] shrink-0" />
-                        <Link href={`/notes/${note.id}`} onClick={close} className="flex-1 min-w-0">
+                        <Link
+                          href={`/notes/${note.id}`}
+                          onClick={close}
+                          className="flex-1 min-w-0 flex items-center gap-2 text-left"
+                        >
+                          <NoteIcon className="w-3.5 h-3.5 text-[#5B8DD9] shrink-0" />
                           <p className="text-xs text-zinc-800 dark:text-zinc-100 truncate">{note.title || 'Sin título'}</p>
+                          {note.images.length > 0 && (
+                            <span className="text-[9px] text-zinc-400 shrink-0 ml-auto pr-1">{note.images.length} img</span>
+                          )}
                         </Link>
-                        {note.images.length > 0 && (
-                          <span className="text-[9px] text-zinc-400 shrink-0">{note.images.length} img</span>
-                        )}
                         <button
                           onClick={() => toggleExpanded(`n${note.id}`)}
                           title="Ver contenido"
@@ -324,17 +328,21 @@ export default function DayModal({ open, onClose }: Props) {
                   return (
                     <div key={task.id} className="rounded-lg bg-[#F5B8D0]/25 dark:bg-[#96627C]/20 overflow-hidden">
                       <div className="flex items-center gap-2 p-2">
-                        {task.completed
-                          ? <CheckCircleIcon className="w-3.5 h-3.5 text-green-500 shrink-0" />
-                          : <CircleIcon className="w-3.5 h-3.5 text-zinc-300 dark:text-zinc-600 shrink-0" />}
-                        <Link href="/tasks" onClick={close} className="flex-1 min-w-0">
+                        <Link
+                          href={`/tasks?task=${task.id}`}
+                          onClick={close}
+                          className="flex-1 min-w-0 flex items-center gap-2 text-left"
+                        >
+                          {task.completed
+                            ? <CheckCircleIcon className="w-3.5 h-3.5 text-green-500 shrink-0" />
+                            : <CircleIcon className="w-3.5 h-3.5 text-zinc-300 dark:text-zinc-600 shrink-0" />}
                           <p className={`text-xs truncate ${task.completed ? 'line-through text-zinc-400' : 'text-zinc-800 dark:text-zinc-100'}`}>{task.title}</p>
+                          {task.subtasks.length > 0 && (
+                            <span className="text-[9px] text-zinc-400 shrink-0 ml-auto pr-1">
+                              {task.subtasks.filter(s => s.completed).length}/{task.subtasks.length}
+                            </span>
+                          )}
                         </Link>
-                        {task.subtasks.length > 0 && (
-                          <span className="text-[9px] text-zinc-400 shrink-0">
-                            {task.subtasks.filter(s => s.completed).length}/{task.subtasks.length}
-                          </span>
-                        )}
                         <button
                           onClick={() => toggleExpanded(`t${task.id}`)}
                           title="Ver contenido"
