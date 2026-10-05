@@ -8,6 +8,7 @@ import { getAllDataAsJSON } from '@/lib/links'
 import { FlatNoteIcon, FlatTaskIcon, FlatMindMapIcon, FlatCalendarIcon, FlatContactIcon, NoteIcon, TaskIcon, MindMapIcon, CheckIcon, SaveIcon, XMarkIcon, TechIcon } from '@/components/Icons'
 import SearchBar from '@/components/SearchBar'
 import ChannelSection from '@/components/ChannelSection'
+import DayModal from '@/components/DayModal'
 import NotificationBell from '@/components/NotificationBell'
 
 export default function Home() {
@@ -18,6 +19,7 @@ export default function Home() {
   const [search, setSearch] = useState('')
   const [showExport, setShowExport] = useState(false)
   const [showFeatures, setShowFeatures] = useState(false)
+  const [showDay, setShowDay] = useState(false)
   const [featureIndex, setFeatureIndex] = useState(0)
   const [linkedChannels, setLinkedChannels] = useState<{ id: string; name?: string }[]>([])
 
@@ -100,6 +102,7 @@ export default function Home() {
           <p className="text-sm font-medium text-white drop-shadow-[0_1px_6px_rgba(0,0,0,0.45)]">Bienvenido un día más</p>
           <button
             type="button"
+            onClick={() => setShowDay(true)}
             className="mt-3 text-xs font-medium px-4 py-2 rounded-xl bg-white/90 backdrop-blur-sm text-zinc-800 hover:bg-white shadow-sm transition-all"
           >
             Ver día
@@ -372,6 +375,8 @@ export default function Home() {
           </div>
         </div>
       )}
+
+      <DayModal open={showDay} onClose={() => setShowDay(false)} />
 
       {showFeatures && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 dark:bg-black/40 p-4" onClick={() => setShowFeatures(false)}>
