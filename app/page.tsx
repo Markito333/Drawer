@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import type { Note, Task, MindMap, Contact } from '@/lib/types'
 import { getNotes, getTasks, getMindMaps, getContacts } from '@/lib/storage'
@@ -19,7 +19,7 @@ export default function Home() {
   const [showExport, setShowExport] = useState(false)
   const [showFeatures, setShowFeatures] = useState(false)
   const [featureIndex, setFeatureIndex] = useState(0)
-  const [mounted, setMounted] = useState(false)
+  const [linkedChannels, setLinkedChannels] = useState<{ id: string; name?: string }[]>([])
 
   const features = [
     { text: 'Notas enriquecidas con formato y enlaces', icon: 'N' },
@@ -46,7 +46,27 @@ export default function Home() {
     setTasks(getTasks().slice(0, 5))
     setMindMaps(getMindMaps().slice(0, 3))
     setContacts(getContacts())
-    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    const load = () => {
+      const allCh = getNotes().flatMap(n =>
+        n.channels && n.channels.length > 0
+          ? n.channels
+          : n.channelId
+            ? [{ id: n.channelId, name: n.channelName }]
+            : []
+      )
+      const unique = allCh.filter((ch, i, arr) => arr.findIndex(c => c.id === ch.id) === i)
+      setLinkedChannels(prev =>
+        prev.length === unique.length && prev.every((c, i) => c.id === unique[i].id)
+          ? prev
+          : unique
+      )
+    }
+    load()
+    window.addEventListener('organizer-data-changed', load)
+    return () => window.removeEventListener('organizer-data-changed', load)
   }, [])
 
   const pendingTasks = tasks.filter(t => !t.completed).length
@@ -55,10 +75,6 @@ export default function Home() {
   const q = search.toLowerCase().trim()
   const allNotes = getNotes()
   const allTasks = getTasks()
-  const memoizedChannels = useMemo(() => {
-    const allCh = allNotes.flatMap(n => n.channels || (n.channelId ? [{ id: n.channelId, name: n.channelName }] : []))
-    return allCh.filter((ch, i, arr) => arr.findIndex(c => c.id === ch.id) === i)
-  }, [allNotes])
 
   const searchResults = q ? {
     notes: allNotes.filter(n => n.title.toLowerCase().includes(q) || n.content.toLowerCase().includes(q)),
@@ -302,15 +318,12 @@ export default function Home() {
             </div>
           </>
         )}
-        {mounted && (() => {
-          if (memoizedChannels.length === 0) return null
-          return (
-            <div className={`${tasks.length > 0 ? 'mt-4 pt-3 border-t border-zinc-200 dark:border-zinc-700' : ''}`}>
-              <p className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500 mb-2 uppercase tracking-wide">Canales</p>
-              <ChannelSection channels={memoizedChannels} />
-            </div>
-          )
-        })()}
+        {linkedChannels.length > 0 && (
+          <div className={`${tasks.length > 0 ? 'mt-4 pt-3 border-t border-zinc-200 dark:border-zinc-700' : ''}`}>
+            <p className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500 mb-2 uppercase tracking-wide">Canales</p>
+            <ChannelSection channels={linkedChannels} />
+          </div>
+        )}
       </div>
       </div>
       )}

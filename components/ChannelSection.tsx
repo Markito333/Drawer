@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 
 interface ChannelVideo {
   id: string
@@ -24,16 +24,12 @@ export default function ChannelSection({ channels }: Props) {
   const [loading, setLoading] = useState(false)
   const [showModal, setShowModal] = useState(false)
 
-  const prevIdsRef = useRef('')
-  const idsRef = useRef('')
-
   useEffect(() => {
-    const ids = channels.map(c => c.id).sort().join(',')
-    idsRef.current = ids
-    if (ids === prevIdsRef.current) return
-    prevIdsRef.current = ids
-
-    if (channels.length === 0) { setChannelData({}); return }
+    if (channels.length === 0) {
+      setChannelData({})
+      setLoading(false)
+      return
+    }
 
     let cancelled = false
     setLoading(true)
@@ -55,7 +51,7 @@ export default function ChannelSection({ channels }: Props) {
       }
     }).finally(() => { if (!cancelled) setLoading(false) })
 
-    return () => { cancelled = idsRef.current !== prevIdsRef.current }
+    return () => { cancelled = true }
   }, [channels])
 
   if (channels.length === 0) return null
